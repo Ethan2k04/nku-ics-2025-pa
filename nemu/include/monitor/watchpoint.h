@@ -12,4 +12,8 @@ typedef struct watchpoint {
 
 } WP;
 
+int set_watchpoint(char *e);
+
+bool delete_breakpoint(int);
+
 #endif

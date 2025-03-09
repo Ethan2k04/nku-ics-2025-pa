@@ -38,6 +38,113 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 
+static int cmd_si(char *args) {
+  if(args[0] == NULL) {
+    cpu_exec(1);
+    return 0;
+  }
+  char * steps = strtok(NULL, " ");
+  if(steps == NULL) {
+    cpu_exec(1);
+  } else {
+    int n = 1;
+    if(sscanf(steps, "%d", &n) == 1 && n > 0) { cpu_exec(n); }
+    else { printf("Invalid number: %s.\n", steps); }
+  }
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  char * arg = strtok(NULL, " ");
+  if(strcmp(arg, "r") == 0) {
+    /* TODO: Print registers */
+    TODO();
+  }
+  else if(strcmp(arg, "w") == 0) {
+    /* TODO: List all the break points */
+    TODO();
+  }
+  else { printf("Invalid command: %s.\n", arg); }
+  return 0;
+}
+
+static int cmd_p(char *args) {
+  if(args == NULL) {
+    /* TODO: Error handler */
+    printf("No expression.\n");
+    TODO();
+    return 0;
+  }
+  bool success = true;
+  uint32_t result = expr(args, &success);
+  if(success) { printf("Result: %u\n", result); }
+  else { printf("Invalid expression: %s.\n", args); }
+  return 0;
+}
+
+static int cmd_x(char *args) {
+  char * n_str = strtok(NULL, " ");
+  char * s_expr = strtok(NULL, " ");
+  if(n_str == NULL || s_expr == NULL) {
+    printf("Invalid arguments.\n");
+    return 0;
+  }
+  int n = 0;
+  if(sscanf(n_str, "%d", &n) != 1 || n <= 0) {
+    printf("Invalid number: %s.\n", n_str);
+    return 0;
+  }
+  bool success = true;
+  uint32_t addr = expr(s_expr, &success);
+  if(!success) {
+    printf("Invalid expression: %s.\n", s_expr);
+    return 0;
+  }
+  for(int i = 0; i < n; i++) {
+    printf("0x%08x: ", addr);
+    for(int j = 0; j < 4; j++) {
+      printf("0x%02x ", vaddr_read(addr, 1));
+      addr++;
+    }
+    printf("\n");
+  }
+  return 0;
+}
+
+static int cmd_w(char *args) {
+  if(args == NULL) {
+		puts("Command format: \"w EXPR\"");
+		return 0;
+	}
+	args += strspn(args, " ");
+	int no = set_watchpoint(args);
+	if(no == -1) {
+		printf("invalid expression: '%s'\n", args);
+		return 0;
+	}
+	printf("set watchpoint %d\n", no);
+	return 0;
+}
+
+static int cmd_d(char *args) {
+  char * p = strtok(NULL, " ");
+  if (p == NULL) {
+    printf("Invalid arguments.\n");
+    /* TODO: Error handler */
+    TODO();
+    return 0;
+  }
+  int no;
+  for(; p != NULL; p = strtok(NULL, " ")) {
+		if(sscanf(p, "%d", &no) != 1) {
+			printf("Bad breakpoint number: '%s'\n", p);
+			return 0;
+		}
+		delete_breakpoint(no);
+	}
+	return 0;
+}
+
 static struct {
   char *name;
   char *description;
@@ -48,7 +155,12 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
-
+  { "si", "Single step execution", cmd_si },
+  { "info", "Display information of regs/watchpoint", cmd_info},
+  { "p", "Evaluate expression", cmd_p},
+  { "x", "Scan memory", cmd_x},
+  { "w", "Set watchpoint", cmd_w},
+  { "d", "Delete watchpoint", cmd_d},
 };
 
 #define NR_CMD (sizeof(cmd_table) / sizeof(cmd_table[0]))

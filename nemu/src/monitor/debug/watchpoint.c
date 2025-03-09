@@ -19,5 +19,10 @@ void init_wp_pool() {
 }
 
 /* TODO: Implement the functionality of watchpoint */
+int set_watchpoint(char *e) {
+  TODO();
+}
 
-
+bool delete_breakpoint(int no){
+  TODO();
+}
