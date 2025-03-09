@@ -28,7 +28,7 @@ static struct rule {
   {"\\*", '*'},                       // multiply
   {"/", '/'},                         // divide
   {"%", '%'},                         // mod
-  {"==", TK_EQ}                       // equal
+  {"==", TK_EQ},                      // equal
   {"!=", TK_NEQ},                     // not equal
   {"0[x,X][0-9a-fA-F]+", TK_HEX},     // hex
   {"[0-9]+", TK_NUM},                 // number
@@ -110,7 +110,7 @@ static bool make_token(char *e) {
           case TK_REG:
           case TK_HEX:
           case TK_NUM:
-          case SYMB:
+          case TK_SYM:
             strcpy(tokens[nr_token].str, substr_start);
             Log("Token %d: Copied substring \"%s\" to tokens[%d].str (type: %d)",
                 nr_token, tokens[nr_token].str, nr_token, rules[i].token_type);
