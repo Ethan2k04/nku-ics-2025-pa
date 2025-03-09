@@ -7,10 +7,10 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ
+  TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
-
+  TK_NEQ, TK_NUM, TK_HEX, TK_REG, TK_SYM, TK_NG, TK_NL, TK_AND, TK_OR, TK_DEREF, TK_NEG
 };
 
 static struct rule {
@@ -22,9 +22,34 @@ static struct rule {
    * Pay attention to the precedence level of different rules.
    */
 
-  {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
-  {"==", TK_EQ}         // equal
+  {" +", TK_NOTYPE},                  // spaces
+  {"\\+", '+'},                       // plus
+  {"\\-", '-'},                       // minus
+  {"\\*", '*'},                       // multiply
+  {"/", '/'},                         // divide
+  {"%", '%'},                         // mod
+  {"==", TK_EQ}                       // equal
+  {"!=", TK_NEQ},                     // not equal
+  {"0[x,X][0-9a-fA-F]+", TK_HEX},     // hex
+  {"[0-9]+", TK_NUM},                 // number
+  {"\\$e[a,b,c,d]x", TK_REG},         // register (eax, ebx, ecx, edx)
+  {"\\$e[s,b]p", TK_REG},             // register (esp, ebp)
+  {"\\$e[d,s]i", TK_REG},             // register (edi, esi)
+  {"[a-zA-Z_][a-zA-Z0-9_]*", TK_SYM}, // symbol
+  {"<=", TK_NG},                      // not greater than
+  {">=", TK_NL},                      // not less than
+  {"<", '<'},                         // less than
+  {">", '>'},                         // greater than
+  {"&&", TK_AND},                     // and
+  {"\\|\\|", TK_OR},                  // or
+  {"!", '!'},                         // not
+  {"\\^", '^'},                       // xor
+  {"~", '~'},                         // neg
+  {"\\(", '('},                       // left bracket
+  {"\\)", ')'},                       // right bracket
+  {"&&", TK_AND},                     // and
+  {"\\|\\|", TK_OR},                  // or
+  {"&", '&'},                         // get addr
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -80,7 +105,19 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          default: TODO();
+          case TK_NOTYPE:
+            break;
+          case TK_REG:
+          case TK_HEX:
+          case TK_NUM:
+          case SYMB:
+            strcpy(tokens[nr_token].str, substr_start);
+            Log("Token %d: Copied substring \"%s\" to tokens[%d].str (type: %d)",
+                nr_token, tokens[nr_token].str, nr_token, rules[i].token_type);
+          default:
+            tokens[nr_token].type = rules[i].token_type;
+            Log("Token %d: Set type to %d (no string copied)", nr_token, rules[i].token_type);
+            nr_token++;
         }
 
         break;
@@ -101,8 +138,9 @@ uint32_t expr(char *e, bool *success) {
     *success = false;
     return 0;
   }
-
+  
   /* TODO: Insert codes to evaluate the expression. */
+  printf("expression parsing not implemented!");
   TODO();
 
   return 0;
