@@ -104,6 +104,7 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
 
+	int j;
         switch (rules[i].token_type) {
           case TK_NOTYPE:
             break;
@@ -111,7 +112,10 @@ static bool make_token(char *e) {
           case TK_HEX:
           case TK_NUM:
           case TK_SYM:
-            strcpy(tokens[nr_token].str, substr_start);
+            for(j=0;j<substr_len;j++) {
+	    	tokens[nr_token].str[j] = *(substr_start+j);
+	    }
+	    tokens[nr_token].str[j]='\0';
             Log("Token %d: Copied substring \"%s\" to tokens[%d].str (type: %d)",
                 nr_token, tokens[nr_token].str, nr_token, rules[i].token_type);
           default:
