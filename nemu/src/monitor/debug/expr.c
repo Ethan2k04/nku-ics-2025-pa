@@ -207,6 +207,7 @@ uint32_t eval(int p, int q, bool *success) {
   }
   else {
     /* We should do more things here. */
+    printf("expression parsing not implemented!");
     TODO();
   }
 }
@@ -218,8 +219,5 @@ uint32_t expr(char *e, bool *success) {
   }
   
   /* TODO: Insert codes to evaluate the expression. */
-  printf("expression parsing not implemented!");
-  TODO();
-
-  return 0;
+  return eval(0, nr_token - 1, success);
 }
