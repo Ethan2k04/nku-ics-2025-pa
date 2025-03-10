@@ -164,7 +164,7 @@ uint32_t eval(int p, int q, bool *success) {
       sscanf(tokens[p].str, "%x", &parsed_value);
       return parsed_value;
     }
-    else if (token[p].type == TK_REG) {
+    else if (tokens[p].type == TK_REG) {
       if (strcmp(tokens[p].str, "$eax") == 0) {
         return cpu.eax;
       }
