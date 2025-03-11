@@ -35,19 +35,19 @@ static struct rule {
   {"\\$e[a,b,c,d]x", TK_REG},         // register (eax, ebx, ecx, edx)
   {"\\$e[s,b]p", TK_REG},             // register (esp, ebp)
   {"\\$e[d,s]i", TK_REG},             // register (edi, esi)
-  {"[a-zA-Z_][a-zA-Z0-9_]*", TK_SYMB}, // symbol
+  {"[a-zA-Z_][a-zA-Z0-9_]*", TK_SYMB},// symbol
   {"<=", TK_NG},                      // not greater than
   {">=", TK_NL},                      // not less than
   {"<", '<'},                         // less than
   {">", '>'},                         // greater than
   {"\\(", '('},                       // left bracket
   {"\\)", ')'},                       // right bracket
-  {"&&", TK_AND},                     // and
-  {"\\|\\|", TK_OR},                  // or
   {"&", '&'},                         // get addr
   {"\\^", '^'},                       // xor
   {"!", '!'},                         // not
-  {"~", '~'},                         // neg
+  {"~", TK_NEG},                      // neg
+  {"&&", TK_AND},                     // and
+  {"\\|\\|", TK_OR},                  // or
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -135,6 +135,31 @@ static bool make_token(char *e) {
   return true;
 }
 
+static struct Pair {
+  int operand;
+  int precedence;
+} table[] = {
+  {TK_OR, 1},
+  {TK_AND, 2},
+  {TK_NEG, 3},
+  {'!', 3},
+  {'^', 3},
+  {'&', 3},
+  {'<', 4},
+  {'>', 4},
+  {TK_NG, 4},
+  {TK_NL, 4},
+  {TK_EQ, 5},
+  {TK_NEQ, 5},
+  {'+', 6},
+  {'-', 6},
+  {'*', 7},
+  {'/', 7},
+  {'%', 7}
+}
+
+int NR_TABLE = sizeof(table) / sizeof(table[0]);
+
 int check_parentheses(int p, int q) {
   int i, unmatched = 0;
   /* Iterate through the tokens array to check whether the number of left/right parentheses are matched. */
@@ -209,15 +234,14 @@ uint32_t eval(int p, int q, bool *success) {
   }
   else {
     /* We should do more things here. */
-    int i;
+    int i, op_index= -1, op_precedence = 0;
     for (i = p; i <= q; ) {
       if (tokens[i].type == '(') {
-        while (tokens[i].type != ')') { ++i; }
-        if (i < q) { ++i; }
-        else {
-          *success = false;
-          printf("Unmatched parentheses.\n");
-          return 0;
+        int unmatched = 1;
+        while (unmatched != 0) {
+          ++i;
+          if (tokens[i].type == '(') {  ++unmatched; }
+          else if (tokens[i].type == ')') {  --unmatched; }
         }
       }
       else {
@@ -230,12 +254,46 @@ uint32_t eval(int p, int q, bool *success) {
           case TK_SYMB:
             ++i;
           default: {
-            /* TODO: Implement divide and conquer logic of expr */
-            printf("Divide and conquer not implemented!")
-            TODO();
+            int j;
+            for (j = 0; j < NR_TABLE; j++) {
+              if (table[j].operand == tokens[i].type) {
+                if (table[j].precedence >= op_precedence) {
+                  op_index = i;
+                  op_precedence = table[j].precedence;
+                }
+              }
+            }
+            ++i;
           }
         }
       }
+    }
+    int op_type = tokens[op_index].type;
+    uint32_t val1, val2;
+    if(op_type != '!' && op_type != TK_NEG && op_type != TK_NEG && op_type != TK_DEREF) { val1 = eval(p, op_index - 1, success); }
+    val2 = eval(op_index + 1, q, success);
+    switch (op_type)
+    {
+      case '+': return val1 + val2; break;
+      case '-': return val1 - val2; break;
+      case '*': return val1 * val2; break;
+      case '/': return val1 / val2; break;
+      case '%': return val1 % val2; break;
+      case '!': return !val2; break;
+      case '^': return val1 ^ val2; break;
+      case '&': return val1 & val2; break;
+      case '|': return val1 | val2; break;
+      case '<': return val1 < val2; break;
+      case '>': return val1 > val2; break;
+      case TK_NG: return val1 <= val2; break;
+      case TK_NL: return val1 >= val2; break;
+      case TK_EQ: return val1 == val2; break;
+      case TK_NEQ: return val1 != val2; break;
+      case TK_NEG: return -val2; break;
+      case TK_DEREF: return vaddr_read(val2, 4); break;
+      case TK_OR: return val1 || val2; break;
+      case TK_AND: return val1 && val2; break;
+      default: assert(0);
     }
   }
 }
@@ -247,5 +305,14 @@ uint32_t expr(char *e, bool *success) {
   }
   
   /* TODO: Insert codes to evaluate the expression. */
+  int i;
+  for (i = 0; i < nr_token; i++) {
+    if (tokens[i].type == '*' && (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != TK_HEX && tokens[i - 1].type != TK_REG && tokens[i - 1].type != TK_SYMB && tokens[i - 1].type != ')' && tokens[i - 1].type != '('))) {
+      tokens[i].type = TK_DEREF;
+    }
+    if (tokens[i].type == '-' && (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != TK_HEX && tokens[i - 1].type != TK_REG && tokens[i - 1].type != TK_SYMB && tokens[i - 1].type != ')' && tokens[i - 1].type != '('))) {
+      tokens[i].type = TK_NEG;
+    }
+  }
   return eval(0, nr_token - 1, success);
 }
