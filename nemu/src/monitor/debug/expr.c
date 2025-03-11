@@ -156,7 +156,7 @@ static struct Pair {
   {'*', 7},
   {'/', 7},
   {'%', 7}
-}
+};
 
 int NR_TABLE = sizeof(table) / sizeof(table[0]);
 
@@ -269,7 +269,7 @@ uint32_t eval(int p, int q, bool *success) {
       }
     }
     int op_type = tokens[op_index].type;
-    uint32_t val1, val2;
+    uint32_t val1 = 0, val2 = 0;
     if(op_type != '!' && op_type != TK_NEG && op_type != TK_NEG && op_type != TK_DEREF) { val1 = eval(p, op_index - 1, success); }
     val2 = eval(op_index + 1, q, success);
     switch (op_type)
