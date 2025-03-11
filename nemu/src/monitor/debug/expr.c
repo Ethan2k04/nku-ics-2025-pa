@@ -109,15 +109,17 @@ static bool make_token(char *e) {
           case TK_REG:
           case TK_HEX:
           case TK_NUM:
-          case TK_SYMB:
+          case TK_SYMB: {
             for(j = 0; j < substr_len; j ++) { tokens[nr_token].str[j] = *(substr_start + j); }
 	          tokens[nr_token].str[j]='\0';
             // Log("Token %d: Copied substring \"%s\" to tokens[%d].str (type: %d)",
             //     nr_token, tokens[nr_token].str, nr_token, rules[i].token_type);
-          default:
+          }
+          default: {
             tokens[nr_token].type = rules[i].token_type;
             // Log("Token %d: Set type to %d (no string copied)", nr_token, rules[i].token_type);
             nr_token ++;
+          }
         }
 
         break;
@@ -207,8 +209,34 @@ uint32_t eval(int p, int q, bool *success) {
   }
   else {
     /* We should do more things here. */
-    printf("expression parsing not implemented!");
-    TODO();
+    int i;
+    for (i = p; i <= q; ) {
+      if (tokens[i].type == '(') {
+        while (tokens[i].type != ')') { ++i; }
+        if (i < q) { ++i; }
+        else {
+          *success = false;
+          printf("Unmatched parentheses.\n");
+          return 0;
+        }
+      }
+      else {
+        switch (tokens[i].type)
+        {
+          case TK_NOTYPE:
+          case TK_NUM:
+          case TK_HEX:
+          case TK_REG:
+          case TK_SYMB:
+            ++i;
+          default: {
+            /* TODO: Implement divide and conquer logic of expr */
+            printf("Divide and conquer not implemented!")
+            TODO();
+          }
+        }
+      }
+    }
   }
 }
 
