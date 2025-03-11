@@ -243,6 +243,7 @@ uint32_t eval(int p, int q, bool *success) {
           if (tokens[i].type == '(') {  ++unmatched; }
           else if (tokens[i].type == ')') {  --unmatched; }
         }
+	++i;
       }
       else {
         switch (tokens[i].type)
