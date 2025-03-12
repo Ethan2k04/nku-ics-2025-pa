@@ -61,7 +61,7 @@ void init_regex() {
   char error_msg[128];
   int ret;
 
-  for (i = 0; i < NR_REGEX; ++i) {
+  for (i = 0; i < NR_REGEX; i++) {
     ret = regcomp(&re[i], rules[i].regex, REG_EXTENDED);
     if (ret != 0) {
       regerror(ret, &re[i], error_msg, 128);
@@ -94,7 +94,7 @@ static bool make_token(char *e) {
 
   while (e[position] != '\0') {
     /* Try all rules one by one. */
-    for (i = 0; i < NR_REGEX; ++i) {
+    for (i = 0; i < NR_REGEX; i++) {
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
@@ -111,7 +111,7 @@ static bool make_token(char *e) {
 	      int j;
         if (is_operand(rules[i].token_type)) {
           tokens[nr_token].type = rules[i].token_type;
-          nr_token++;
+          ++nr_token;
         }
         else if (rules[i].token_type != TK_NOTYPE) {
           for(j = 0; j < substr_len; ++j) { tokens[nr_token].str[j] = *(substr_start + j); }
@@ -157,7 +157,7 @@ int NR_TABLE = sizeof(table) / sizeof(table[0]);
 int check_parentheses(int p, int q) {
   int i, unmatched = 0;
   /* Iterate through the tokens array to check whether the number of left/right parentheses are matched. */
-  for (i = p; i <= q; ++i) {
+  for (i = p; i <= q; i++) {
     if (tokens[i].type == '(') { ++unmatched; }
     else if (tokens[i].type == ')') { --unmatched; }
     if (unmatched == 0 && i < q) {
@@ -229,7 +229,7 @@ uint32_t eval(int p, int q, bool *success) {
   else {
     /* We should do more things here. */
     int i, op_index= -1, op_precedence = 0;
-    for (i = p; i <= q; ++i) {
+    for (i = p; i <= q; i++) {
       if (tokens[i].type == '(') {
         int unmatched = 1;
         while (unmatched != 0) {
@@ -241,7 +241,7 @@ uint32_t eval(int p, int q, bool *success) {
       }
       else if (is_operand(tokens[i].type)) {
         int j;
-        for (j = 0; j < NR_TABLE; ++j) {
+        for (j = 0; j < NR_TABLE; j++) {
           if (table[j].operand == tokens[i].type) {
             if (table[j].precedence >= op_precedence) {
               op_index = i;
@@ -289,7 +289,7 @@ uint32_t expr(char *e, bool *success) {
   
   /* TODO: Insert codes to evaluate the expression. */
   int i;
-  for (i = 0; i < nr_token; ++i) {
+  for (i = 0; i < nr_token; i++) {
     if (tokens[i].type == '*' && is_operand(tokens[i - 1].type)) {
       tokens[i].type = TK_DEREF;
     }
