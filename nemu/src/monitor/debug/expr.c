@@ -115,7 +115,7 @@ static bool make_token(char *e) {
           }
           default: {
             tokens[nr_token].type = rules[i].token_type;
-            nr_token ++;
+            ++ nr_token;
           }
         }
 
@@ -160,9 +160,9 @@ int NR_TABLE = sizeof(table) / sizeof(table[0]);
 int check_parentheses(int p, int q) {
   int i, unmatched = 0;
   /* Iterate through the tokens array to check whether the number of left/right parentheses are matched. */
-  for (i = p; i <= q; i++) {
-    if (tokens[i].type == '(') { ++unmatched; }
-    else if (tokens[i].type == ')') { --unmatched; }
+  for (i = p; i <= q; i ++) {
+    if (tokens[i].type == '(') { ++ unmatched; }
+    else if (tokens[i].type == ')') { -- unmatched; }
     if (unmatched == 0 && i < q) {
       return 0;
     }
@@ -239,11 +239,11 @@ uint32_t eval(int p, int q, bool *success) {
       if (tokens[i].type == '(') {
         int unmatched = 1;
         while (unmatched != 0 && i < q) {
-          ++i;
-          if (tokens[i].type == '(') { ++unmatched; }
-          else if (tokens[i].type == ')') { --unmatched; }
+          ++ i;
+          if (tokens[i].type == '(') { ++ unmatched; }
+          else if (tokens[i].type == ')') { -- unmatched; }
         }
-        ++i;
+        ++ i;
       }
       else {
         switch (tokens[i].type)
@@ -253,10 +253,10 @@ uint32_t eval(int p, int q, bool *success) {
           case TK_HEX:
           case TK_REG:
           case TK_SYMB:
-            ++i;
+            ++ i;
           default: {
             int j;
-            for (j = 0; j < NR_TABLE; j++) {
+            for (j = 0; j < NR_TABLE; j ++) {
               if (table[j].operand == tokens[i].type) {
                 if (table[j].precedence >= op_precedence) {
                   op_index = i;
@@ -264,7 +264,7 @@ uint32_t eval(int p, int q, bool *success) {
                 }
               }
             }
-            ++i;
+            ++ i;
           }
         }
       }
@@ -300,10 +300,7 @@ uint32_t eval(int p, int q, bool *success) {
 }
 
 bool is_operand(int op_type) {
-  if (op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG && op_type != TK_SYMB) {
-    return false;
-  }
-  return true;
+  return op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG && op_type != TK_SYMB;
 }
 
 uint32_t expr(char *e, bool *success) {
@@ -314,11 +311,11 @@ uint32_t expr(char *e, bool *success) {
   
   /* TODO: Insert codes to evaluate the expression. */
   int i;
-  for (i = 0; i < nr_token; i++) {
-    if (tokens[i].type == '*' && is_operand(tokens[i - 1].type)) {
+  for (i = 0; i < nr_token; i ++) {
+    if (tokens[i].type == '*' && (i == 0 || is_operand(tokens[i - 1].type))) {
       tokens[i].type = TK_DEREF;
     }
-    if (tokens[i].type == '-' && is_operand(tokens[i - 1].type)) {
+    if (tokens[i].type == '-' && (i == 0 || is_operand(tokens[i - 1].type))) {
       tokens[i].type = TK_NEG;
     }
   }
