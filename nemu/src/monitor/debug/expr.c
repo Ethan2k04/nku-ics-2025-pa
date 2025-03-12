@@ -62,7 +62,7 @@ void init_regex() {
   char error_msg[128];
   int ret;
 
-  for (i = 0; i < NR_REGEX; i ++) {
+  for (i = 0; i < NR_REGEX; i++) {
     ret = regcomp(&re[i], rules[i].regex, REG_EXTENDED);
     if (ret != 0) {
       regerror(ret, &re[i], error_msg, 128);
@@ -88,20 +88,18 @@ static bool make_token(char *e) {
 
   while (e[position] != '\0') {
     /* Try all rules one by one. */
-    for (i = 0; i < NR_REGEX; i ++) {
+    for (i = 0; i < NR_REGEX; i++) {
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
-
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
-        position += substr_len;
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // position += substr_len;
 
         /* TODO: Now a new token is recognized with rules[i]. Add codes
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
-
 	      int j;
         switch (rules[i].token_type) {
           case TK_NOTYPE:
@@ -110,25 +108,22 @@ static bool make_token(char *e) {
           case TK_HEX:
           case TK_NUM:
           case TK_SYMB: {
-            for(j = 0; j < substr_len; j ++) { tokens[nr_token].str[j] = *(substr_start + j); }
+            for(j = 0; j < substr_len; j++) { tokens[nr_token].str[j] = *(substr_start + j); }
 	          tokens[nr_token].str[j]='\0';
           }
           default: {
             tokens[nr_token].type = rules[i].token_type;
-            ++ nr_token;
+            ++nr_token;
           }
         }
-
         break;
       }
     }
-
     if (i == NR_REGEX) {
       printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
       return false;
     }
   }
-
   return true;
 }
 
@@ -159,31 +154,21 @@ static struct Pair {
 
 bool check_parentheses(int p, int q, bool *valid) {
   bool flag = true;
-  if (tokens[p].type != '(' || tokens[q].type != ')') {
-      flag = false;
-  }
-  int left = 0;
-  int right = 0;
+  if (tokens[p].type != '(' || tokens[q].type != ')') flag = false;
+  int left = 0, right = 0;
   for (int i = p; i < q; i++){
       if (tokens[i].type == '(') left++;
       else if (tokens[i].type == ')') {
           if (left > 0) {
               left--;
-              if (left == 0)
-                  flag = false;
+              if (left == 0) flag = false;
           }
           else right++;
       }
   }
   if (tokens[q].type == ')') {
-      if (left > 0)
-      {
-          left--;
-      }
-      else
-      {
-          right++;
-      }
+      if (left > 0) left--;
+      else right++;
   }
   if (left + right == 0) {
       *valid = true;
@@ -201,18 +186,18 @@ bool is_operand(int op_type) {
 
 int find_dominant_op(int p, int q) {
   int i, op_index= -1, op_precedence = 0;
-  for (i = p; i <= q; i ++) {
+  for (i = p; i <= q; i++) {
     if (tokens[i].type == '(') {
       int unmatched = 1;
       while (unmatched != 0 && i < q) {
-        ++ i;
-        if (tokens[i].type == '(') { ++ unmatched; }
-        else if (tokens[i].type == ')') { -- unmatched; }
+        ++i;
+        if (tokens[i].type == '(') { ++unmatched; }
+        else if (tokens[i].type == ')') { --unmatched; }
       }
     }
     else if (is_operand(tokens[i].type) == true) {
       int j;
-      for (j = 0; j < NR_TABLE; j ++) {
+      for (j = 0; j < NR_TABLE; j++) {
         if (table[j].operand == tokens[i].type) {
           if (table[j].precedence >= op_precedence) {
             op_index = i;
@@ -248,33 +233,15 @@ uint32_t eval(int p, int q, bool *valid) {
       return parsed_value;
     }
     else if (tokens[p].type == TK_REG) {
-      if (strcmp(tokens[p].str, "$eax") == 0) {
-        return cpu.eax;
-      }
-      else if (strcmp(tokens[p].str, "$ebx") == 0) {
-        return cpu.ebx;
-      }
-      else if (strcmp(tokens[p].str, "$ecx") == 0) {
-        return cpu.ecx;
-      }
-      else if (strcmp(tokens[p].str, "$edx") == 0) {
-        return cpu.edx;
-      }
-      else if (strcmp(tokens[p].str, "$esp") == 0) {
-        return cpu.esp;
-      }
-      else if (strcmp(tokens[p].str, "$ebp") == 0) {
-        return cpu.ebp;
-      }
-      else if (strcmp(tokens[p].str, "$esi") == 0) {
-        return cpu.esi;
-      }
-      else if (strcmp(tokens[p].str, "$edi") == 0) {
-        return cpu.edi;
-      }
-      else {
-        return cpu.eip;
-      }
+      if (strcmp(tokens[p].str, "$eax") == 0) return cpu.eax;
+      else if (strcmp(tokens[p].str, "$ebx") == 0) return cpu.ebx;
+      else if (strcmp(tokens[p].str, "$ecx") == 0) return cpu.ecx;
+      else if (strcmp(tokens[p].str, "$edx") == 0) return cpu.edx;
+      else if (strcmp(tokens[p].str, "$esp") == 0) return cpu.esp;
+      else if (strcmp(tokens[p].str, "$ebp") == 0) return cpu.ebp;
+      else if (strcmp(tokens[p].str, "$esi") == 0) return cpu.esi;
+      else if (strcmp(tokens[p].str, "$edi") == 0) return cpu.edi;
+      else return cpu.eip;
     }
     else if (tokens[p].type == TK_SYMB) {
       /* TODO: Handle TK_SYMB type */
@@ -331,7 +298,7 @@ uint32_t expr(char *e, bool *success) {
   
   /* TODO: Insert codes to evaluate the expression. */
   int i;
-  for (i = 0; i < nr_token; i ++) {
+  for (i = 0; i < nr_token; i++) {
     if (tokens[i].type == '*' && (i == 0 || is_operand(tokens[i - 1].type))) {
       tokens[i].type = TK_DEREF;
     }
