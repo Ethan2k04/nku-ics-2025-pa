@@ -112,12 +112,9 @@ static bool make_token(char *e) {
           case TK_SYMB: {
             for(j = 0; j < substr_len; j ++) { tokens[nr_token].str[j] = *(substr_start + j); }
 	          tokens[nr_token].str[j]='\0';
-            // Log("Token %d: Copied substring \"%s\" to tokens[%d].str (type: %d)",
-            //     nr_token, tokens[nr_token].str, nr_token, rules[i].token_type);
           }
           default: {
             tokens[nr_token].type = rules[i].token_type;
-            // Log("Token %d: Set type to %d (no string copied)", nr_token, rules[i].token_type);
             nr_token ++;
           }
         }
@@ -274,7 +271,7 @@ uint32_t eval(int p, int q, bool *success) {
     }
     int op_type = tokens[op_index].type;
     uint32_t val1 = 0, val2 = 0;
-    if(op_type != '!' && op_type != TK_NEG && op_type != TK_NEG && op_type != TK_DEREF) { val1 = eval(p, op_index - 1, success); }
+    if (op_type != '!' && op_type != TK_NEG && op_type != TK_NEG && op_type != TK_DEREF) { val1 = eval(p, op_index - 1, success); }
     val2 = eval(op_index + 1, q, success);
     switch (op_type)
     {
@@ -317,13 +314,13 @@ uint32_t expr(char *e, bool *success) {
   
   /* TODO: Insert codes to evaluate the expression. */
   int i;
-  for (i = 0; i < nr_token; i++) {
-    if (tokens[i].type == '*' && is_operand(tokens[i - 1].type)) {
-      tokens[i].type = TK_DEREF;
-    }
-    if (tokens[i].type == '-' && is_operand(tokens[i - 1].type)) {
-      tokens[i].type = TK_NEG;
-    }
-  }
+  // for (i = 0; i < nr_token; i++) {
+  //   if (tokens[i].type == '*' && is_operand(tokens[i - 1].type)) {
+  //     tokens[i].type = TK_DEREF;
+  //   }
+  //   if (tokens[i].type == '-' && is_operand(tokens[i - 1].type)) {
+  //     tokens[i].type = TK_NEG;
+  //   }
+  // }
   return eval(0, nr_token - 1, success);
 }
