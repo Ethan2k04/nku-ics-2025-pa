@@ -50,7 +50,7 @@ static struct rule {
   {"\\|\\|", TK_OR},                  // or
 };
 
-#define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
+#define NR_REGEX (sizeof(rules) / sizeof(rules[0]))
 
 static regex_t re[NR_REGEX];
 
@@ -155,25 +155,77 @@ static struct Pair {
   {'%', 7}
 };
 
-int NR_TABLE = sizeof(table) / sizeof(table[0]);
+#define NR_TABLE (sizeof(table) / sizeof(table[0]))
 
-int check_parentheses(int p, int q) {
-  int i, unmatched = 0;
-  /* Iterate through the tokens array to check whether the number of left/right parentheses are matched. */
-  for (i = p; i <= q; i ++) {
-    if (tokens[i].type == '(') { ++ unmatched; }
-    else if (tokens[i].type == ')') { -- unmatched; }
-    if (unmatched == 0 && i < q) {
-      return 0;
-    }
+bool check_parentheses(int p, int q, bool *valid) {
+  bool flag = true;
+  if (tokens[p].type != '(' || tokens[q].type != ')') {
+      flag = false;
   }
-  return (unmatched == 0) && (tokens[p].type == '(') && (tokens[q].type == ')');
+  int left = 0;
+  int right = 0;
+  for (int i = p; i < q; i++){
+      if (tokens[i].type == '(') left++;
+      else if (tokens[i].type == ')') {
+          if (left > 0) {
+              left--;
+              if (left == 0)
+                  flag = false;
+          }
+          else right++;
+      }
+  }
+  if (tokens[q].type == ')') {
+      if (left > 0)
+      {
+          left--;
+      }
+      else
+      {
+          right++;
+      }
+  }
+  if (left + right == 0) {
+      *valid = true;
+      return flag;
+  }
+  else {
+      *valid = false;
+      return false;
+  }
 }
 
-uint32_t eval(int p, int q, bool *success) {
+int find_dominant_op(int p, int q) {
+  int i, op_index= -1, op_precedence = 0;
+  for (i = p; i <= q; i ++) {
+    if (tokens[i].type == '(') {
+      int unmatched = 1;
+      while (unmatched != 0 && i < q) {
+        ++ i;
+        if (tokens[i].type == '(') { ++ unmatched; }
+        else if (tokens[i].type == ')') { -- unmatched; }
+      }
+    }
+    else if (is_operand(tokens[i].type)) {
+      int j;
+      for (j = 0; j < NR_TABLE; j ++) {
+        if (table[j].operand == tokens[i].type) {
+          if (table[j].precedence >= op_precedence) {
+            op_index = i;
+            op_precedence = table[j].precedence;
+          }
+        }
+      }
+    }
+  }
+  return op_index;
+}
+
+uint32_t eval(int p, int q, bool *valid) {
+  if (*valid == false) return 0;
   if (p > q) {
     /* Bad expression */
-    *success = false;
+    *valid = false;
     return 0;
   }
   else if (p == q) {
@@ -220,59 +272,26 @@ uint32_t eval(int p, int q, bool *success) {
         return cpu.eip;
       }
     }
-    else {
+    else if (tokens[p].type == TK_SYMB) {
       /* TODO: Handle TK_SYMB type */
+      prinf("Symbol expression not implemented.");
       TODO();
     }
+    else { assert(0); }
     return 0;
   }
-  else if (check_parentheses(p, q) == true) {
+  else if (check_parentheses(p, q, valid) == true) {
     /* The expression is surrounded by a matched pair of parentheses.
      * If that is the case, just throw away the parentheses.
      */
-    return eval(p + 1, q - 1, success);
+    return eval(p + 1, q - 1, valid);
   }
-  else {
+  else if (*valid == true) {
     /* We should do more things here. */
-    int i, op_index= -1, op_precedence = 0;
-    for (i = p; i <= q; ) {
-      if (tokens[i].type == '(') {
-        int unmatched = 1;
-        while (unmatched != 0 && i < q) {
-          ++ i;
-          if (tokens[i].type == '(') { ++ unmatched; }
-          else if (tokens[i].type == ')') { -- unmatched; }
-        }
-        ++ i;
-      }
-      else {
-        switch (tokens[i].type)
-        {
-          case TK_NOTYPE:
-          case TK_NUM:
-          case TK_HEX:
-          case TK_REG:
-          case TK_SYMB:
-            ++ i;
-          default: {
-            int j;
-            for (j = 0; j < NR_TABLE; j ++) {
-              if (table[j].operand == tokens[i].type) {
-                if (table[j].precedence >= op_precedence) {
-                  op_index = i;
-                  op_precedence = table[j].precedence;
-                }
-              }
-            }
-            ++ i;
-          }
-        }
-      }
-    }
+    int op_index = find_dominant_op(p, q);
     int op_type = tokens[op_index].type;
-    uint32_t val1 = 0, val2 = 0;
-    if (op_type != '!' && op_type != TK_NEG && op_type != TK_NEG && op_type != TK_DEREF) { val1 = eval(p, op_index - 1, success); }
-    val2 = eval(op_index + 1, q, success);
+    uint32_t val1 = eval(p, op_index - 1, valid);
+    uint32_t val2 = eval(op_index + 1, q, valid);
     switch (op_type)
     {
       case '+': return val1 + val2; break;
@@ -319,5 +338,14 @@ uint32_t expr(char *e, bool *success) {
       tokens[i].type = TK_NEG;
     }
   }
-  return eval(0, nr_token - 1, success);
+  bool valid = true;
+  uint32_t res = eval(0, nr_token - 1, &valid);
+  if (valid == true) {
+    *success = true;
+    return res;
+  } 
+  else {
+    *success = false;
+    return 0;
+  }
 }
