@@ -195,6 +195,10 @@ bool check_parentheses(int p, int q, bool *valid) {
   }
 }
 
+bool is_operand(int op_type) {
+  return op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG && op_type != TK_SYMB;
+}
+
 int find_dominant_op(int p, int q) {
   int i, op_index= -1, op_precedence = 0;
   for (i = p; i <= q; i ++) {
@@ -206,7 +210,7 @@ int find_dominant_op(int p, int q) {
         else if (tokens[i].type == ')') { -- unmatched; }
       }
     }
-    else if (is_operand(tokens[i].type)) {
+    else if (is_operand(tokens[i].type) == true) {
       int j;
       for (j = 0; j < NR_TABLE; j ++) {
         if (table[j].operand == tokens[i].type) {
@@ -274,7 +278,7 @@ uint32_t eval(int p, int q, bool *valid) {
     }
     else if (tokens[p].type == TK_SYMB) {
       /* TODO: Handle TK_SYMB type */
-      prinf("Symbol expression not implemented.");
+      printf("Symbol expression not implemented.");
       TODO();
     }
     else { assert(0); }
@@ -316,10 +320,7 @@ uint32_t eval(int p, int q, bool *valid) {
       default: assert(0);
     }
   }
-}
-
-bool is_operand(int op_type) {
-  return op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG && op_type != TK_SYMB;
+  return 0;
 }
 
 uint32_t expr(char *e, bool *success) {
