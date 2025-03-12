@@ -117,6 +117,7 @@ static bool make_token(char *e) {
           for(j = 0; j < substr_len; ++j) { tokens[nr_token].str[j] = *(substr_start + j); }
 	        tokens[nr_token].str[j]='\0';
         }
+	break;
       }
     }
 
