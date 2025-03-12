@@ -241,10 +241,10 @@ uint32_t eval(int p, int q, bool *success) {
     for (i = p; i <= q; ) {
       if (tokens[i].type == '(') {
         int unmatched = 1;
-        while (unmatched != 0) {
+        while (unmatched != 0 && i < q) {
           ++i;
-          if (tokens[i].type == '(') {  ++unmatched; }
-          else if (tokens[i].type == ')') {  --unmatched; }
+          if (tokens[i].type == '(') { ++unmatched; }
+          else if (tokens[i].type == ')') { --unmatched; }
         }
         ++i;
       }
@@ -303,7 +303,7 @@ uint32_t eval(int p, int q, bool *success) {
 }
 
 bool is_operand(int op_type) {
-  if (op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG && op_type != TK_SYMB) {
+  if (op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG && op_type != TK_SYMB) {
     return false;
   }
   return true;
