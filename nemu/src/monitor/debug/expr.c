@@ -164,8 +164,11 @@ int check_parentheses(int p, int q) {
   int i, unmatched = 0;
   /* Iterate through the tokens array to check whether the number of left/right parentheses are matched. */
   for (i = p; i <= q; i++) {
-    if (tokens[i].type == '(') {  ++unmatched; }
-    else if (tokens[i].type == ')') {  --unmatched; }
+    if (tokens[i].type == '(') { ++unmatched; }
+    else if (tokens[i].type == ')') { --unmatched; }
+    if (unmatched == 0 && i < q) {
+      return 0;
+    }
   }
   return (unmatched == 0) && (tokens[p].type == '(') && (tokens[q].type == ')');
 }
@@ -243,7 +246,7 @@ uint32_t eval(int p, int q, bool *success) {
           if (tokens[i].type == '(') {  ++unmatched; }
           else if (tokens[i].type == ')') {  --unmatched; }
         }
-	++i;
+        ++i;
       }
       else {
         switch (tokens[i].type)
