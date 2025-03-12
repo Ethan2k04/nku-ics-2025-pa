@@ -294,12 +294,19 @@ uint32_t eval(int p, int q, bool *success) {
       case TK_EQ: return val1 == val2; break;
       case TK_NEQ: return val1 != val2; break;
       case TK_NEG: return -val2; break;
-      case TK_DEREF: return vaddr_read(val2, 4); break;
+      case TK_DEREF: return (uint32_t) vaddr_read(val2, 4); break;
       case TK_OR: return val1 || val2; break;
       case TK_AND: return val1 && val2; break;
       default: assert(0);
     }
   }
+}
+
+bool is_operand(int op_type) {
+  if (op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG && op_type != TK_SYMB) {
+    return false;
+  }
+  return true;
 }
 
 uint32_t expr(char *e, bool *success) {
@@ -311,10 +318,10 @@ uint32_t expr(char *e, bool *success) {
   /* TODO: Insert codes to evaluate the expression. */
   int i;
   for (i = 0; i < nr_token; i++) {
-    if (tokens[i].type == '*' && (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != TK_HEX && tokens[i - 1].type != TK_REG && tokens[i - 1].type != TK_SYMB && tokens[i - 1].type != ')' && tokens[i - 1].type != '('))) {
+    if (tokens[i].type == '*' && is_operand(tokens[i - 1].type)) {
       tokens[i].type = TK_DEREF;
     }
-    if (tokens[i].type == '-' && (i == 0 || (tokens[i - 1].type != TK_NUM && tokens[i - 1].type != TK_HEX && tokens[i - 1].type != TK_REG && tokens[i - 1].type != TK_SYMB && tokens[i - 1].type != ')' && tokens[i - 1].type != '('))) {
+    if (tokens[i].type == '-' && is_operand(tokens[i - 1].type)) {
       tokens[i].type = TK_NEG;
     }
   }
