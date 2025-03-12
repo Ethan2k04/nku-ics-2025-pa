@@ -10,7 +10,7 @@ enum {
   TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
-  TK_NEQ, TK_NUM, TK_HEX, TK_REG, TK_NG, TK_NL, TK_AND, TK_OR, TK_DEREF, TK_NEG
+  TK_NEQ, TK_NUM, TK_HEX, TK_REG, TK_SYMB, TK_NG, TK_NL, TK_AND, TK_OR, TK_DEREF, TK_NEG
 };
 
 static struct rule {
@@ -35,6 +35,7 @@ static struct rule {
   {"\\$e[a,b,c,d]x", TK_REG},         // register (eax, ebx, ecx, edx)
   {"\\$e[s,b]p", TK_REG},             // register (esp, ebp)
   {"\\$e[d,s]i", TK_REG},             // register (edi, esi)
+  {"[a-zA-Z_][a-zA-Z0-9_]*", TK_SYMB},// symbol
   {"<=", TK_NG},                      // not greater than
   {">=", TK_NL},                      // not less than
   {"<", '<'},                         // less than
@@ -61,7 +62,7 @@ void init_regex() {
   char error_msg[128];
   int ret;
 
-  for (i = 0; i < NR_REGEX; i++) {
+  for (i = 0; i < NR_REGEX; i ++) {
     ret = regcomp(&re[i], rules[i].regex, REG_EXTENDED);
     if (ret != 0) {
       regerror(ret, &re[i], error_msg, 128);
@@ -78,13 +79,6 @@ typedef struct token {
 Token tokens[32];
 int nr_token;
 
-bool is_operand(int op_type) {
-  if (op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG) {
-    return false;
-  }
-  return true;
-}
-
 static bool make_token(char *e) {
   int position = 0;
   int i;
@@ -94,7 +88,7 @@ static bool make_token(char *e) {
 
   while (e[position] != '\0') {
     /* Try all rules one by one. */
-    for (i = 0; i < NR_REGEX; i++) {
+    for (i = 0; i < NR_REGEX; i ++) {
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
@@ -109,15 +103,26 @@ static bool make_token(char *e) {
          */
 
 	      int j;
-        if (is_operand(rules[i].token_type)) {
-          tokens[nr_token].type = rules[i].token_type;
-          ++nr_token;
+        switch (rules[i].token_type) {
+          case TK_NOTYPE:
+            break;
+          case TK_REG:
+          case TK_HEX:
+          case TK_NUM:
+          case TK_SYMB: {
+            for(j = 0; j < substr_len; j ++) { tokens[nr_token].str[j] = *(substr_start + j); }
+	          tokens[nr_token].str[j]='\0';
+            // Log("Token %d: Copied substring \"%s\" to tokens[%d].str (type: %d)",
+            //     nr_token, tokens[nr_token].str, nr_token, rules[i].token_type);
+          }
+          default: {
+            tokens[nr_token].type = rules[i].token_type;
+            // Log("Token %d: Set type to %d (no string copied)", nr_token, rules[i].token_type);
+            nr_token ++;
+          }
         }
-        else if (rules[i].token_type != TK_NOTYPE) {
-          for(j = 0; j < substr_len; ++j) { tokens[nr_token].str[j] = *(substr_start + j); }
-	        tokens[nr_token].str[j]='\0';
-        }
-	break;
+
+        break;
       }
     }
 
@@ -218,7 +223,10 @@ uint32_t eval(int p, int q, bool *success) {
         return cpu.eip;
       }
     }
-    else { assert(0); }
+    else {
+      /* TODO: Handle TK_SYMB type */
+      TODO();
+    }
     return 0;
   }
   else if (check_parentheses(p, q) == true) {
@@ -230,24 +238,36 @@ uint32_t eval(int p, int q, bool *success) {
   else {
     /* We should do more things here. */
     int i, op_index= -1, op_precedence = 0;
-    for (i = p; i <= q; i++) {
+    for (i = p; i <= q; ) {
       if (tokens[i].type == '(') {
         int unmatched = 1;
-        while (unmatched != 0) {
-          if (i >= q) { assert(0); }
+        while (unmatched != 0 && i < q) {
           ++i;
           if (tokens[i].type == '(') { ++unmatched; }
           else if (tokens[i].type == ')') { --unmatched; }
         }
+        ++i;
       }
-      else if (is_operand(tokens[i].type)) {
-        int j;
-        for (j = 0; j < NR_TABLE; j++) {
-          if (table[j].operand == tokens[i].type) {
-            if (table[j].precedence >= op_precedence) {
-              op_index = i;
-              op_precedence = table[j].precedence;
+      else {
+        switch (tokens[i].type)
+        {
+          case TK_NOTYPE:
+          case TK_NUM:
+          case TK_HEX:
+          case TK_REG:
+          case TK_SYMB:
+            ++i;
+          default: {
+            int j;
+            for (j = 0; j < NR_TABLE; j++) {
+              if (table[j].operand == tokens[i].type) {
+                if (table[j].precedence >= op_precedence) {
+                  op_index = i;
+                  op_precedence = table[j].precedence;
+                }
+              }
             }
+            ++i;
           }
         }
       }
@@ -280,6 +300,13 @@ uint32_t eval(int p, int q, bool *success) {
       default: assert(0);
     }
   }
+}
+
+bool is_operand(int op_type) {
+  if (op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG && op_type != TK_SYMB) {
+    return false;
+  }
+  return true;
 }
 
 uint32_t expr(char *e, bool *success) {
