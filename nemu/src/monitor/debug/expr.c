@@ -313,14 +313,14 @@ uint32_t expr(char *e, bool *success) {
   }
   
   /* TODO: Insert codes to evaluate the expression. */
-  // int i;
-  // for (i = 0; i < nr_token; i++) {
-  //   if (tokens[i].type == '*' && is_operand(tokens[i - 1].type)) {
-  //     tokens[i].type = TK_DEREF;
-  //   }
-  //   if (tokens[i].type == '-' && is_operand(tokens[i - 1].type)) {
-  //     tokens[i].type = TK_NEG;
-  //   }
-  // }
+  int i;
+  for (i = 0; i < nr_token; i++) {
+    if (tokens[i].type == '*' && is_operand(tokens[i - 1].type)) {
+      tokens[i].type = TK_DEREF;
+    }
+    if (tokens[i].type == '-' && is_operand(tokens[i - 1].type)) {
+      tokens[i].type = TK_NEG;
+    }
+  }
   return eval(0, nr_token - 1, success);
 }
