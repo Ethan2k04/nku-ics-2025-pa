@@ -28,9 +28,9 @@ static struct rule {
   {"\\*", '*'},                       // multiply
   {"/", '/'},                         // divide
   {"==", TK_EQ},                      // equal
-  {"!=", TK_NEQ},                     // not equal
+  {"!=", TK_NEQ},                     // not equal (matched first to avoid collisions with not)
+  {"0[x,X][0-9a-fA-F]+", TK_HEX},     // hex (matched first to avoid collisions with number)
   {"[0-9]+", TK_NUM},                 // number
-  {"0[x,X][0-9a-fA-F]+", TK_HEX},     // hex
   {"\\$e[a,b,c,d]x", TK_REG},         // register (eax, ebx, ecx, edx)
   {"\\$e[s,b]p", TK_REG},             // register (esp, ebp)
   {"\\$e[d,s]i", TK_REG},             // register (edi, esi)
@@ -40,7 +40,6 @@ static struct rule {
   {">", '>'},                         // greater than
   {"\\(", '('},                       // left bracket
   {"\\)", ')'},                       // right bracket
-  {"&", '&'},                         // get addr
   {"\\^", '^'},                       // xor
   {"!", '!'},                         // not
   {"&&", TK_AND},                     // and
@@ -90,15 +89,14 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
-        position += substr_len;
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // position += substr_len;
 
         /* TODO: Now a new token is recognized with rules[i]. Add codes
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
-
 	      int j;
         switch (rules[i].token_type) {
           case TK_NOTYPE: { break; }
@@ -113,11 +111,9 @@ static bool make_token(char *e) {
             nr_token++;
           }
         }
-
         break;
       }
     }
-
     if (i == NR_REGEX) {
       printf("no match at position %d\n%s\n%*.s^\n", position, e, position, "");
       return false;
@@ -133,11 +129,7 @@ static struct Pair {
 } table[] = {
   {TK_OR, 1},
   {TK_AND, 2},
-  {TK_NEG, 3},
-  {TK_DEREF, 3},
-  {'!', 3},
   {'^', 3},
-  {'&', 3},
   {'<', 4},
   {'>', 4},
   {TK_NG, 4},
@@ -148,6 +140,9 @@ static struct Pair {
   {'-', 6},
   {'*', 7},
   {'/', 7},
+  {'!', 8},
+  {TK_NEG, 8},
+  {TK_DEREF, 8},
 };
 
 #define NR_TABLE (sizeof(table) / sizeof(table[0]))
@@ -260,8 +255,8 @@ uint32_t eval(int p, int q, bool *valid) {
     }
     int op_type = tokens[op_index].type;
     uint32_t val1, val2;
-    if (op_type != TK_DEREF && op_type != TK_NEG) { val1 = eval(p, op_index - 1, valid); }
-    else { val1 = 0; }
+    if (op_type != TK_DEREF && op_type != TK_NEG && op_type != '!') { val1 = eval(p, op_index - 1, valid); }
+    else { val1 = NULL; }
     val2 = eval(op_index + 1, q, valid);
     switch (op_type)
     {
@@ -271,7 +266,6 @@ uint32_t eval(int p, int q, bool *valid) {
       case '/': { return val1 / val2; break; }
       case '!': { return !val2; break; }
       case '^': { return val1 ^ val2; break; }
-      case '&': { return val1 & val2; break; }
       case '<': { return val1 < val2; break; }
       case '>': { return val1 > val2; break; }
       case TK_NG: { return val1 <= val2; break; }
@@ -298,11 +292,11 @@ uint32_t expr(char *e, bool *success) {
   int i;
   for (i = 0; i < nr_token; i++) {
     if (tokens[i].type == '-' && (i == 0 || is_operand(tokens[i - 1].type))) {
-      printf("Negation token detected at index %d\n", i);
+      // printf("Negation token detected at index %d\n", i);
       tokens[i].type = TK_NEG;
     }
     if (tokens[i].type == '*' && (i == 0 || is_operand(tokens[i - 1].type))) {
-      printf("Dereference token detected at index %d\n", i);
+      // printf("Dereference token detected at index %d\n", i);
       tokens[i].type = TK_DEREF;
     }
   }
