@@ -134,7 +134,7 @@ static struct Pair {
   {TK_OR, 1},
   {TK_AND, 2},
   {TK_NEG, 3},
-  {TK_DEREF, 3}
+  {TK_DEREF, 3},
   {'!', 3},
   {'^', 3},
   {'&', 3},
