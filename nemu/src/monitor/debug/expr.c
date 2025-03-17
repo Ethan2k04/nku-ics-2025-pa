@@ -43,7 +43,6 @@ static struct rule {
   {"&", '&'},                         // get addr
   {"\\^", '^'},                       // xor
   {"!", '!'},                         // not
-  {"~", TK_NEG},                      // neg
   {"&&", TK_AND},                     // and
   {"\\|\\|", TK_OR},                  // or
 };
@@ -148,6 +147,7 @@ static struct Pair {
   {'-', 6},
   {'*', 7},
   {'/', 7},
+  {TK_DEREF, 8}
 };
 
 #define NR_TABLE (sizeof(table) / sizeof(table[0]))
@@ -160,25 +160,18 @@ bool check_parentheses(int p, int q, bool *valid) {
   int left = 0;
   int right = 0;
   for (int i = p; i < q; i++){
-      if (tokens[i].type == '(') left++;
+      if (tokens[i].type == '(') { left++; }
       else if (tokens[i].type == ')') {
           if (left > 0) {
               left--;
-              if (left == 0)
-                  flag = false;
+              if (left == 0) { flag = false; }
           }
-          else right++;
+          else { right++; }
       }
   }
   if (tokens[q].type == ')') {
-      if (left > 0)
-      {
-          left--;
-      }
-      else
-      {
-          right++;
-      }
+      if (left > 0) { left--; }
+      else { right++; }
   }
   if (left + right == 0) {
       *valid = true;
@@ -295,6 +288,16 @@ uint32_t expr(char *e, bool *success) {
   }
   
   /* TODO: Insert codes to evaluate the expression. */
+  int i;
+  for (i = 0; i < nr_token; i++) {
+    if (tokens[i].type == '-' && (i == 0 || is_operand(tokens[i - 1].type))) {
+      tokens[i].type = TK_NEG;
+    }
+    if (tokens[i].type == '*' && (i == 0 || is_operand(tokens[i - 1].type))) {
+      tokens[i].type = TK_DEREF;
+    }
+  }
+
   bool valid = true;
   uint32_t res = eval(0, nr_token - 1, &valid);
   if (valid == true) {
