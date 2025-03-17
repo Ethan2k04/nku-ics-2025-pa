@@ -195,21 +195,15 @@ bool is_operand(int op_type) {
 }
 
 int find_dominant_op(int p, int q) {
-  int i, op_index= -1, op_precedence = 0;
+  int i, op_index= -1, op_precedence = 0, level = -1;
   for (i = p; i <= q; i++) {
-    if (tokens[i].type == '(') {
-      int unmatched = 1;
-      while (unmatched != 0 && i < q) {
-        i++;
-        if (tokens[i].type == '(') { unmatched++; }
-        else if (tokens[i].type == ')') { unmatched--; }
-      }
-    }
-    else if (is_operand(tokens[i].type) == true) {
+    if (tokens[i].type == '(') { level++; }
+    else if (tokens[i].type == ')') { level--; }
+    else if (level == -1 && is_operand(tokens[i].type) == true) {
       int j;
       for (j = 0; j < NR_TABLE; j++) {
         if (table[j].operand == tokens[i].type) {
-          if (table[j].precedence >= op_precedence) {
+          if (op_index == -1 || table[j].precedence >= op_precedence) {
             op_index = i;
             op_precedence = table[j].precedence;
           }
@@ -265,6 +259,7 @@ uint32_t eval(int p, int q, bool *valid) {
   else if (*valid == true) {
     /* We should do more things here. */
     int op_index = find_dominant_op(p, q);
+    if (op_index < 0) { *valid = false; return 0; }
     int op_type = tokens[op_index].type;
     uint32_t val1 = eval(p, op_index - 1, valid);
     uint32_t val2 = eval(op_index + 1, q, valid);
