@@ -184,7 +184,8 @@ bool check_parentheses(int p, int q, bool *valid) {
 }
 
 bool is_operand(int op_type) {
-  return op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG;
+  return op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX
+  && op_type != TK_REG && op_type != '(' && op_type != ')';
 }
 
 int find_dominant_op(int p, int q) {
@@ -240,7 +241,7 @@ uint32_t eval(int p, int q, bool *valid) {
       else if (strcmp(tokens[p].str, "$edi") == 0) { return cpu.edi; }
       else { return cpu.eip; }
     }
-    else { assert(0); }
+    else { printf("No matching register."); assert(0); }
     return 0;
   }
   else if (check_parentheses(p, q, valid) == true) {
@@ -252,10 +253,16 @@ uint32_t eval(int p, int q, bool *valid) {
   else if (*valid == true) {
     /* We should do more things here. */
     int op_index = find_dominant_op(p, q);
-    if (op_index < 0) { *valid = false; return 0; }
+    if (op_index < 0) { 
+      printf("No dominant operator found.")
+      *valid = false;
+      return 0;
+    }
     int op_type = tokens[op_index].type;
-    uint32_t val1 = eval(p, op_index - 1, valid);
-    uint32_t val2 = eval(op_index + 1, q, valid);
+    uint32_t val1, val2;
+    if (op_type != TK_DEREF && op_type != TK_NEG) { val1 = eval(p, op_index - 1, valid); }
+    else { val1 = 0; }
+    val2 = eval(op_index + 1, q, valid);
     switch (op_type)
     {
       case '+': { return val1 + val2; break; }
@@ -275,7 +282,7 @@ uint32_t eval(int p, int q, bool *valid) {
       case TK_DEREF: { return (uint32_t) vaddr_read(val2, 4); break; }
       case TK_OR: { return val1 || val2; break; }
       case TK_AND: { return val1 && val2; break; }
-      default: { assert(0); }
+      default: { printf("No matching dominant op_type."); assert(0); }
     }
   }
   return 0;
@@ -290,16 +297,15 @@ uint32_t expr(char *e, bool *success) {
   /* TODO: Insert codes to evaluate the expression. */
   int i;
   for (i = 0; i < nr_token; i++) {
-    if (tokens[i].type == '-' && tokens[i - 1].type != '(' && tokens[i - 1].type != ')' && (i == 0 || is_operand(tokens[i - 1].type))) {
+    if (tokens[i].type == '-' && (i == 0 || is_operand(tokens[i - 1].type))) {
       printf("Negation token detected at index %d\n", i);
       tokens[i].type = TK_NEG;
     }
-    if (tokens[i].type == '*' && tokens[i - 1].type != '(' && tokens[i - 1].type != ')' && (i == 0 || is_operand(tokens[i - 1].type))) {
+    if (tokens[i].type == '*' && (i == 0 || is_operand(tokens[i - 1].type))) {
       printf("Dereference token detected at index %d\n", i);
       tokens[i].type = TK_DEREF;
     }
   }
-
   bool valid = true;
   uint32_t res = eval(0, nr_token - 1, &valid);
   if (valid == true) {
