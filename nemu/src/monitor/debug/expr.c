@@ -134,6 +134,7 @@ static struct Pair {
   {TK_OR, 1},
   {TK_AND, 2},
   {TK_NEG, 3},
+  {TK_DEREF, 3}
   {'!', 3},
   {'^', 3},
   {'&', 3},
@@ -147,7 +148,6 @@ static struct Pair {
   {'-', 6},
   {'*', 7},
   {'/', 7},
-  {TK_DEREF, 8}
 };
 
 #define NR_TABLE (sizeof(table) / sizeof(table[0]))
@@ -291,9 +291,11 @@ uint32_t expr(char *e, bool *success) {
   int i;
   for (i = 0; i < nr_token; i++) {
     if (tokens[i].type == '-' && (i == 0 || is_operand(tokens[i - 1].type))) {
+      printf("Negation token detected at index %d\n", i);
       tokens[i].type = TK_NEG;
     }
     if (tokens[i].type == '*' && (i == 0 || is_operand(tokens[i - 1].type))) {
+      printf("Dereference token detected at index %d\n", i);
       tokens[i].type = TK_DEREF;
     }
   }
