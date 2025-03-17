@@ -154,7 +154,7 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
 
-  /* TODO: Add more commands */
+  /* TODO✔️: Add more commands */
   { "si", "Single step execution", cmd_si },
   { "info", "Display information of regs/watchpoint", cmd_info},
   { "p", "Evaluate expression", cmd_p},

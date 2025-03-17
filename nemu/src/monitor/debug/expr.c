@@ -9,7 +9,7 @@
 enum {
   TK_NOTYPE = 256, TK_EQ,
 
-  /* TODO: Add more token types */
+  /* TODO✔️: Add more token types */
   TK_NEQ, TK_NUM, TK_HEX, TK_REG, TK_NG, TK_NL, TK_AND, TK_OR, TK_DEREF, TK_NEG
 };
 
@@ -18,7 +18,7 @@ static struct rule {
   int token_type;
 } rules[] = {
 
-  /* TODO: Add more rules.
+  /* TODO✔️: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
 
@@ -93,7 +93,7 @@ static bool make_token(char *e) {
         //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
         position += substr_len;
 
-        /* TODO: Now a new token is recognized with rules[i]. Add codes
+        /* TODO✔️: Now a new token is recognized with rules[i]. Add codes
          * to record the token in the array `tokens'. For certain types
          * of tokens, some extra actions should be performed.
          */
@@ -288,7 +288,7 @@ uint32_t expr(char *e, bool *success) {
     return 0;
   }
   
-  /* TODO: Insert codes to evaluate the expression. */
+  /* TODO✔️: Insert codes to evaluate the expression. */
   int i;
   for (i = 0; i < nr_token; i++) {
     if (tokens[i].type == '-' && (i == 0 || is_operand(tokens[i - 1].type))) {
