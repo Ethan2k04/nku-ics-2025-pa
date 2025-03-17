@@ -91,7 +91,7 @@ static bool make_token(char *e) {
 
         // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
         //     i, rules[i].regex, position, substr_len, substr_len, substr_start);
-        // position += substr_len;
+        position += substr_len;
 
         /* TODO: Now a new token is recognized with rules[i]. Add codes
          * to record the token in the array `tokens'. For certain types
@@ -256,7 +256,7 @@ uint32_t eval(int p, int q, bool *valid) {
     int op_type = tokens[op_index].type;
     uint32_t val1, val2;
     if (op_type != TK_DEREF && op_type != TK_NEG && op_type != '!') { val1 = eval(p, op_index - 1, valid); }
-    else { val1 = NULL; }
+    else { val1 = 0; }
     val2 = eval(op_index + 1, q, valid);
     switch (op_type)
     {
