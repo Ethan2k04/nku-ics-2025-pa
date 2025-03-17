@@ -254,7 +254,7 @@ uint32_t eval(int p, int q, bool *valid) {
     /* We should do more things here. */
     int op_index = find_dominant_op(p, q);
     if (op_index < 0) { 
-      printf("No dominant operator found.")
+      printf("No dominant operator found.");
       *valid = false;
       return 0;
     }
