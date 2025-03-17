@@ -10,7 +10,7 @@ enum {
   TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
-  TK_NEQ, TK_NUM, TK_HEX, TK_REG, TK_SYMB, TK_NG, TK_NL, TK_AND, TK_OR, TK_DEREF, TK_NEG
+  TK_NEQ, TK_NUM, TK_HEX, TK_REG, TK_NG, TK_NL, TK_AND, TK_OR, TK_DEREF, TK_NEG
 };
 
 static struct rule {
@@ -27,15 +27,13 @@ static struct rule {
   {"\\-", '-'},                       // minus
   {"\\*", '*'},                       // multiply
   {"/", '/'},                         // divide
-  {"%", '%'},                         // mod
   {"==", TK_EQ},                      // equal
   {"!=", TK_NEQ},                     // not equal
-  {"0[x,X][0-9a-fA-F]+", TK_HEX},     // hex
   {"[0-9]+", TK_NUM},                 // number
+  {"0[x,X][0-9a-fA-F]+", TK_HEX},     // hex
   {"\\$e[a,b,c,d]x", TK_REG},         // register (eax, ebx, ecx, edx)
   {"\\$e[s,b]p", TK_REG},             // register (esp, ebp)
   {"\\$e[d,s]i", TK_REG},             // register (edi, esi)
-  {"[a-zA-Z_][a-zA-Z0-9_]*", TK_SYMB},// symbol
   {"<=", TK_NG},                      // not greater than
   {">=", TK_NL},                      // not less than
   {"<", '<'},                         // less than
@@ -62,7 +60,7 @@ void init_regex() {
   char error_msg[128];
   int ret;
 
-  for (i = 0; i < NR_REGEX; i ++) {
+  for (i = 0; i < NR_REGEX; i++) {
     ret = regcomp(&re[i], rules[i].regex, REG_EXTENDED);
     if (ret != 0) {
       regerror(ret, &re[i], error_msg, 128);
@@ -88,7 +86,7 @@ static bool make_token(char *e) {
 
   while (e[position] != '\0') {
     /* Try all rules one by one. */
-    for (i = 0; i < NR_REGEX; i ++) {
+    for (i = 0; i < NR_REGEX; i++) {
       if (regexec(&re[i], e + position, 1, &pmatch, 0) == 0 && pmatch.rm_so == 0) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
@@ -104,18 +102,16 @@ static bool make_token(char *e) {
 
 	      int j;
         switch (rules[i].token_type) {
-          case TK_NOTYPE:
-            break;
+          case TK_NOTYPE: { break; }
           case TK_REG:
           case TK_HEX:
-          case TK_NUM:
-          case TK_SYMB: {
-            for(j = 0; j < substr_len; j ++) { tokens[nr_token].str[j] = *(substr_start + j); }
+          case TK_NUM: {
+            for(j = 0; j < substr_len; j++) { tokens[nr_token].str[j] = *(substr_start + j); }
 	          tokens[nr_token].str[j]='\0';
           }
           default: {
             tokens[nr_token].type = rules[i].token_type;
-            ++ nr_token;
+            nr_token++;
           }
         }
 
@@ -152,7 +148,6 @@ static struct Pair {
   {'-', 6},
   {'*', 7},
   {'/', 7},
-  {'%', 7}
 };
 
 #define NR_TABLE (sizeof(table) / sizeof(table[0]))
@@ -196,23 +191,23 @@ bool check_parentheses(int p, int q, bool *valid) {
 }
 
 bool is_operand(int op_type) {
-  return op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG && op_type != TK_SYMB;
+  return op_type != TK_NOTYPE && op_type != TK_NUM && op_type != TK_HEX && op_type != TK_REG;
 }
 
 int find_dominant_op(int p, int q) {
   int i, op_index= -1, op_precedence = 0;
-  for (i = p; i <= q; i ++) {
+  for (i = p; i <= q; i++) {
     if (tokens[i].type == '(') {
       int unmatched = 1;
       while (unmatched != 0 && i < q) {
-        ++ i;
-        if (tokens[i].type == '(') { ++ unmatched; }
-        else if (tokens[i].type == ')') { -- unmatched; }
+        i++;
+        if (tokens[i].type == '(') { unmatched++; }
+        else if (tokens[i].type == ')') { unmatched--; }
       }
     }
     else if (is_operand(tokens[i].type) == true) {
       int j;
-      for (j = 0; j < NR_TABLE; j ++) {
+      for (j = 0; j < NR_TABLE; j++) {
         if (table[j].operand == tokens[i].type) {
           if (table[j].precedence >= op_precedence) {
             op_index = i;
@@ -248,38 +243,15 @@ uint32_t eval(int p, int q, bool *valid) {
       return parsed_value;
     }
     else if (tokens[p].type == TK_REG) {
-      if (strcmp(tokens[p].str, "$eax") == 0) {
-        return cpu.eax;
-      }
-      else if (strcmp(tokens[p].str, "$ebx") == 0) {
-        return cpu.ebx;
-      }
-      else if (strcmp(tokens[p].str, "$ecx") == 0) {
-        return cpu.ecx;
-      }
-      else if (strcmp(tokens[p].str, "$edx") == 0) {
-        return cpu.edx;
-      }
-      else if (strcmp(tokens[p].str, "$esp") == 0) {
-        return cpu.esp;
-      }
-      else if (strcmp(tokens[p].str, "$ebp") == 0) {
-        return cpu.ebp;
-      }
-      else if (strcmp(tokens[p].str, "$esi") == 0) {
-        return cpu.esi;
-      }
-      else if (strcmp(tokens[p].str, "$edi") == 0) {
-        return cpu.edi;
-      }
-      else {
-        return cpu.eip;
-      }
-    }
-    else if (tokens[p].type == TK_SYMB) {
-      /* TODO: Handle TK_SYMB type */
-      printf("Symbol expression not implemented.");
-      TODO();
+      if (strcmp(tokens[p].str, "$eax") == 0) { return cpu.eax; }
+      else if (strcmp(tokens[p].str, "$ebx") == 0) { return cpu.ebx; }
+      else if (strcmp(tokens[p].str, "$ecx") == 0) { return cpu.ecx; }
+      else if (strcmp(tokens[p].str, "$edx") == 0) { return cpu.edx; }
+      else if (strcmp(tokens[p].str, "$esp") == 0) { return cpu.esp; }
+      else if (strcmp(tokens[p].str, "$ebp") == 0) { return cpu.ebp; }
+      else if (strcmp(tokens[p].str, "$esi") == 0) { return cpu.esi; }
+      else if (strcmp(tokens[p].str, "$edi") == 0) { return cpu.edi; }
+      else { return cpu.eip; }
     }
     else { assert(0); }
     return 0;
@@ -298,26 +270,24 @@ uint32_t eval(int p, int q, bool *valid) {
     uint32_t val2 = eval(op_index + 1, q, valid);
     switch (op_type)
     {
-      case '+': return val1 + val2; break;
-      case '-': return val1 - val2; break;
-      case '*': return val1 * val2; break;
-      case '/': return val1 / val2; break;
-      case '%': return val1 % val2; break;
-      case '!': return !val2; break;
-      case '^': return val1 ^ val2; break;
-      case '&': return val1 & val2; break;
-      case '|': return val1 | val2; break;
-      case '<': return val1 < val2; break;
-      case '>': return val1 > val2; break;
-      case TK_NG: return val1 <= val2; break;
-      case TK_NL: return val1 >= val2; break;
-      case TK_EQ: return val1 == val2; break;
-      case TK_NEQ: return val1 != val2; break;
-      case TK_NEG: return -val2; break;
-      case TK_DEREF: return (uint32_t) vaddr_read(val2, 4); break;
-      case TK_OR: return val1 || val2; break;
-      case TK_AND: return val1 && val2; break;
-      default: assert(0);
+      case '+': { return val1 + val2; break; }
+      case '-': { return val1 - val2; break; }
+      case '*': { return val1 * val2; break; }
+      case '/': { return val1 / val2; break; }
+      case '!': { return !val2; break; }
+      case '^': { return val1 ^ val2; break; }
+      case '&': { return val1 & val2; break; }
+      case '<': { return val1 < val2; break; }
+      case '>': { return val1 > val2; break; }
+      case TK_NG: { return val1 <= val2; break; }
+      case TK_NL: { return val1 >= val2; break; }
+      case TK_EQ: { return val1 == val2; break; }
+      case TK_NEQ: { return val1 != val2; break; }
+      case TK_NEG: { return -val2; break; }
+      case TK_DEREF: { return (uint32_t) vaddr_read(val2, 4); break; }
+      case TK_OR: { return val1 || val2; break; }
+      case TK_AND: { return val1 && val2; break; }
+      default: { assert(0); }
     }
   }
   return 0;
@@ -331,13 +301,9 @@ uint32_t expr(char *e, bool *success) {
   
   /* TODO: Insert codes to evaluate the expression. */
   int i;
-  for (i = 0; i < nr_token; i ++) {
-    if (tokens[i].type == '*' && (i == 0 || is_operand(tokens[i - 1].type))) {
-      tokens[i].type = TK_DEREF;
-    }
-    if (tokens[i].type == '-' && (i == 0 || is_operand(tokens[i - 1].type))) {
-      tokens[i].type = TK_NEG;
-    }
+  for (i = 0; i < nr_token; i++) {
+    if (tokens[i].type == '*' && (i == 0 || is_operand(tokens[i - 1].type))) { tokens[i].type = TK_DEREF; }
+    if (tokens[i].type == '-' && (i == 0 || is_operand(tokens[i - 1].type))) { tokens[i].type = TK_NEG; }
   }
   bool valid = true;
   uint32_t res = eval(0, nr_token - 1, &valid);
