@@ -290,11 +290,11 @@ uint32_t expr(char *e, bool *success) {
   /* TODO: Insert codes to evaluate the expression. */
   int i;
   for (i = 0; i < nr_token; i++) {
-    if (tokens[i].type == '-' && (i == 0 || is_operand(tokens[i - 1].type))) {
+    if (tokens[i].type == '-' && (i == 0 || is_operand(tokens[i - 1].type) || tokens[i - 1].type == '(' || tokens[i - 1].type == ')')) {
       printf("Negation token detected at index %d\n", i);
       tokens[i].type = TK_NEG;
     }
-    if (tokens[i].type == '*' && (i == 0 || is_operand(tokens[i - 1].type))) {
+    if (tokens[i].type == '*' && (i == 0 || is_operand(tokens[i - 1].type) || tokens[i - 1].type == '(' || tokens[i - 1].type == ')')) {
       printf("Dereference token detected at index %d\n", i);
       tokens[i].type = TK_DEREF;
     }
