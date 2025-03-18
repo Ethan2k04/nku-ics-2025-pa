@@ -21,7 +21,6 @@ static struct rule {
   /* TODO✔️: Add more rules.
    * Pay attention to the precedence level of different rules.
    */
-
   {" +", TK_NOTYPE},                  // spaces
   {"\\+", '+'},                       // plus
   {"\\-", '-'},                       // minus
@@ -57,7 +56,6 @@ void init_regex() {
   int i;
   char error_msg[128];
   int ret;
-
   for (i = 0; i < NR_REGEX; i++) {
     ret = regcomp(&re[i], rules[i].regex, REG_EXTENDED);
     if (ret != 0) {
@@ -79,9 +77,7 @@ static bool make_token(char *e) {
   int position = 0;
   int i;
   regmatch_t pmatch;
-
   nr_token = 0;
-
   while (e[position] != '\0') {
     /* Try all rules one by one. */
     for (i = 0; i < NR_REGEX; i++) {
@@ -103,7 +99,9 @@ static bool make_token(char *e) {
           case TK_REG:
           case TK_HEX:
           case TK_NUM: {
-            for(j = 0; j < substr_len; j++) { tokens[nr_token].str[j] = *(substr_start + j); }
+            for(j = 0; j < substr_len; j++) {
+              tokens[nr_token].str[j] = *(substr_start + j);
+            }
 	          tokens[nr_token].str[j]='\0';
           }
           default: {
@@ -119,7 +117,6 @@ static bool make_token(char *e) {
       return false;
     }
   }
-
   return true;
 }
 
@@ -168,14 +165,8 @@ bool check_parentheses(int p, int q, bool *valid) {
       if (left > 0) { left--; }
       else { right++; }
   }
-  if (left + right == 0) {
-      *valid = true;
-      return flag;
-  }
-  else {
-      *valid = false;
-      return false;
-  }
+  if (left + right == 0) { *valid = true; return flag; }
+  else { *valid = false; return false; }
 }
 
 bool is_operand(int op_type) {
@@ -255,11 +246,12 @@ uint32_t eval(int p, int q, bool *valid) {
     }
     int op_type = tokens[op_index].type;
     uint32_t val1, val2;
-    if (op_type != TK_DEREF && op_type != TK_NEG && op_type != '!') { val1 = eval(p, op_index - 1, valid); }
+    if (op_type != TK_DEREF && op_type != TK_NEG && op_type != '!') {
+      val1 = eval(p, op_index - 1, valid);
+    }
     else { val1 = 0; }
     val2 = eval(op_index + 1, q, valid);
-    switch (op_type)
-    {
+    switch (op_type) {
       case '+': { return val1 + val2; break; }
       case '-': { return val1 - val2; break; }
       case '*': { return val1 * val2; break; }
@@ -302,12 +294,6 @@ uint32_t expr(char *e, bool *success) {
   }
   bool valid = true;
   uint32_t res = eval(0, nr_token - 1, &valid);
-  if (valid == true) {
-    *success = true;
-    return res;
-  } 
-  else {
-    *success = false;
-    return 0;
-  }
+  if (valid == true) { *success = true; return res; } 
+  else { *success = false; return 0; }
 }
