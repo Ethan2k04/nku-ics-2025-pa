@@ -32,7 +32,7 @@ void cpu_exec(uint64_t n) {
     /* TODO: check watchpoints here. */
     WP *wp = scan_watchpoint();
     if (wp != NULL) {
-      printf("\n\nHit watchpoint %d at address 0x%08x, expr = %s\n", wp->NO, cpu.eip, wp->expr);
+      printf("Hit watchpoint %d at address 0x%08x, expr = %s\n", wp->NO, cpu.eip, wp->expr);
 			printf("old value = %#08x\nnew value = %#08x\n", wp->old_val, wp->new_val);
 			wp->old_val = wp->new_val;
       nemu_state = NEMU_STOP;
