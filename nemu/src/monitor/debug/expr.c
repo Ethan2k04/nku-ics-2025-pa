@@ -227,7 +227,7 @@ uint32_t eval(int p, int q, bool *valid) {
       else if (strcmp(tokens[p].str, "$edi") == 0) { return cpu.edi; }
       else { return cpu.eip; }
     }
-    else { printf("No matching register."); assert(0); }
+    else { printf("No matching register.\n"); assert(0); }
     return 0;
   }
   else if (check_parentheses(p, q, valid) == true) {
@@ -240,7 +240,7 @@ uint32_t eval(int p, int q, bool *valid) {
     /* We should do more things here. */
     int op_index = find_dominant_op(p, q);
     if (op_index < 0) { 
-      printf("No dominant operator found.");
+      printf("No dominant operator found.\n");
       *valid = false;
       return 0;
     }
@@ -268,7 +268,7 @@ uint32_t eval(int p, int q, bool *valid) {
       case TK_DEREF: { return (uint32_t) vaddr_read(val2, 4); break; }
       case TK_OR: { return val1 || val2; break; }
       case TK_AND: { return val1 && val2; break; }
-      default: { printf("No matching dominant op_type."); assert(0); }
+      default: { printf("No matching dominant op_type.\n"); assert(0); }
     }
   }
   return 0;
