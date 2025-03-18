@@ -24,7 +24,7 @@ static void insert_node(WP *wp, WP* ll) {
   ll->next = wp;
 }
 
-WP* new_wp(const char *e, bool *success) {
+WP* new_wp(char *e, bool *success) {
   if (free_->next == NULL) {
     printf("No free node in wp free list.");
     assert(0);
@@ -35,7 +35,7 @@ WP* new_wp(const char *e, bool *success) {
   wp->next = NULL;
   expr(e, success);
   if (*success == true) { strcpy(wp->expr, e); }
-  else { printf("wp expression invalid."); return ; }
+  else { printf("wp expression invalid."); return NULL; }
   if (head == NULL) { head = wp; }
   else { insert_node(wp, head); }
   return wp;
@@ -65,9 +65,9 @@ bool free_wp(int NO) {
 
 /* TODO✔️: Implement the functionality of watchpoint */
 int set_watchpoint(char *e) {
-  bool *success = true;
-  WP* wp = new_wp(e, success);
-  if (*success == true) { return wp->NO; }
+  bool success = true;
+  WP* wp = new_wp(e, &success);
+  if (success == true) { return wp->NO; }
   else { return -1; }
 }
 
