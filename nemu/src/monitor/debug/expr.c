@@ -31,7 +31,7 @@ static struct rule {
   {"0[x,X][0-9a-fA-F]+", TK_HEX},     // hex (matched first to avoid collisions with number)
   {"[0-9]+", TK_NUM},                 // number
   {"\\$e[a,b,c,d]x", TK_REG},         // register (eax, ebx, ecx, edx)
-  {"\\$e[s,b]p", TK_REG},             // register (esp, ebp)
+  {"\\$e[s,b,i]p", TK_REG},           // register (esp, ebp, eip)
   {"\\$e[d,s]i", TK_REG},             // register (edi, esi)
   {"<=", TK_NG},                      // not greater than
   {">=", TK_NL},                      // not less than
