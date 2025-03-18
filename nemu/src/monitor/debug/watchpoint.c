@@ -88,3 +88,13 @@ WP* scan_watchpoint() {
   }
   return NULL;
 }
+
+void watchpoint_display() {
+  printf("=========WATCHPOINT INFO=========\n");
+  printf("NO.\tExpr\tOld Val\tVal\n");
+  WP* cur = head;
+  while (cur){
+    printf("\e[1;36m%d\e[0m\t\e[0;32m%s\e[0m\t\e[0;32m%d\e[0m\n", cur->NO, cur->expr, cur->old_val);
+    cur = cur->next;
+  }
+}
