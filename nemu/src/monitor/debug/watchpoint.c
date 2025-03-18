@@ -33,7 +33,7 @@ WP* new_wp(char *e, bool *success) {
   wp->NO = wp_id++;
   free_->next = wp->next;
   wp->next = NULL;
-  expr(e, success);
+  wp->old_val = wp->new_val = expr(e, success);
   if (*success == true) { strcpy(wp->expr, e); }
   else { printf("wp expression invalid.\n"); return NULL; }
   if (head == NULL) { head = wp; }
@@ -74,4 +74,27 @@ int set_watchpoint(char *e) {
 bool delete_breakpoint(int no){
   printf("wp with NO %d has been deleted.\n", no);
   return free_wp(no);
+}
+
+WP* scan_watchpoint() {
+  WP *wp = head;
+  while (wp) {
+    bool success;
+    wp->new_val = expr(wp->expr, &success);
+    if (wp->old_val != wp->new_val) {
+      return wp;
+    }
+    wp = wp->next;
+  }
+  return NULL;
+}
+
+void watchpoint_display() {
+  printf("=========WATCHPOINT INFO=========\n");
+  printf("NO.\tExpr\tOld Val\tVal\n");
+  WP* cur = head;
+  while (cur){
+    printf("\e[1;36m%d\e[0m\t\e[0;32m%s\e[0m\t\e[0;32m%d\e[0m\n", cur->NO, cur->expr, cur->old_val);
+    cur = cur->next;
+  }
 }

@@ -8,6 +8,27 @@ const char *regsl[] = {"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"};
 const char *regsw[] = {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di"};
 const char *regsb[] = {"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh"};
 
+void reg_display() {
+  printf("=========REG INFO=========\n");
+  for (int i = 0; i < 8; i++) {
+    printf("\e[1;36m%3s:\e[0m %#12x | ", regsl[i], cpu.gpr[i]._32);
+    if ((i + 1) % 4 == 0) { printf("\n"); }
+  }
+  printf("\e[1;36m%3s:\e[0m %#12x\n", "eip", cpu.eip);
+  printf("\n");
+  printf("=========16-bit REG=========\n");
+  for (int i = 0; i < 8; i++) {
+    printf("\e[1;36m%3s:\e[0m %#8x | ", regsw[i], cpu.gpr[i]._16);
+    if ((i + 1) % 4 == 0) { printf("\n"); }
+  }
+  printf("\n");
+  printf("=========8-bit REG=========\n");
+  for (int i = 0; i < 8; i++) {
+    printf("\e[1;36m%3s:\e[0m %#6x | ", regsb[i], cpu.gpr[i % 4]._8[i / 4]);
+    if ((i + 1) % 4 == 0) { printf("\n"); }
+  }
+}
+
 void reg_test() {
   srand(time(0));
   uint32_t sample[8];

@@ -9,10 +9,15 @@ typedef struct watchpoint {
 
   /* TODO✔️: Add more members if necessary */
   char expr[32];
+  uint32_t old_val, new_val;
 } WP;
 
 int set_watchpoint(char *e);
 
 bool delete_breakpoint(int);
+
+WP* scan_watchpoint();
+
+void watchpoint_display();
 
 #endif

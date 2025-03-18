@@ -57,12 +57,12 @@ static int cmd_si(char *args) {
 static int cmd_info(char *args) {
   char * arg = strtok(NULL, " ");
   if(strcmp(arg, "r") == 0) {
-    /* TODO: Print registers */
-    TODO();
+    /* TODO✔️: Print registers */
+    reg_display();
   }
   else if(strcmp(arg, "w") == 0) {
-    /* TODO: List all the break points */
-    TODO();
+    /* TODO✔️: List all the break points */
+    watchpoint_display();
   }
   else { printf("Invalid command: %s.\n", arg); }
   return 0;
