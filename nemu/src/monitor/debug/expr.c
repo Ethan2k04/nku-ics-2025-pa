@@ -225,7 +225,8 @@ uint32_t eval(int p, int q, bool *valid) {
       else if (strcmp(tokens[p].str, "$ebp") == 0) { return cpu.ebp; }
       else if (strcmp(tokens[p].str, "$esi") == 0) { return cpu.esi; }
       else if (strcmp(tokens[p].str, "$edi") == 0) { return cpu.edi; }
-      else { return cpu.eip; }
+      else if (strcmp(tokens[p].str, "$eip") == 0) { return cpu.eip; }
+      else { printf("No matching register name."); return 0; }
     }
     else { printf("No matching register.\n"); assert(0); }
     return 0;
