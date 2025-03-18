@@ -54,6 +54,8 @@ extern const char* regsl[];
 extern const char* regsw[];
 extern const char* regsb[];
 
+static void reg_display();
+
 static inline const char* reg_name(int index, int width) {
   assert(index >= 0 && index < 8);
   switch (width) {

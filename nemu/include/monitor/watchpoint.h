@@ -18,6 +18,6 @@ bool delete_breakpoint(int);
 
 WP* scan_watchpoint();
 
-void watchpoint_display();
+static void watchpoint_display();
 
 #endif

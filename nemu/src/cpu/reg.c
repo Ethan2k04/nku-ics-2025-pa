@@ -8,7 +8,7 @@ const char *regsl[] = {"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"};
 const char *regsw[] = {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di"};
 const char *regsb[] = {"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh"};
 
-void reg_display() {
+static void reg_display() {
   printf("=========REG INFO=========\n");
   for (int i = 0; i < 8; i++) {
     printf("\e[1;36m%3s:\e[0m %#12x | ", regsl[i], cpu.gpr[i]._32);

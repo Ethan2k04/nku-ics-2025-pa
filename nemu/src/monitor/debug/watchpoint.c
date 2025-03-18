@@ -89,7 +89,7 @@ WP* scan_watchpoint() {
   return NULL;
 }
 
-void watchpoint_display() {
+static void watchpoint_display() {
   printf("=========WATCHPOINT INFO=========\n");
   printf("NO.\tExpr\tOld Val\tVal\n");
   WP* cur = head;
