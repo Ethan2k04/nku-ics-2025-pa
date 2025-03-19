@@ -52,3 +52,10 @@ gdb: $(BINARY)
 
 clean: 
 	rm -rf $(BUILD_DIR)
+
+count:
+	find nemu/ -name "*.c" -o -name "*.h" | xargs wc -l
+
+count_no_empty:
+	find nemu/ -name "*.c" -o -name "*.h" | xargs grep -v '^$' | wc -l
+	
