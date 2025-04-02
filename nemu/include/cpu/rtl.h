@@ -177,7 +177,20 @@ static inline void rtl_msb(rtlreg_t* dest, const rtlreg_t* src1, int width) {
 
 static inline void rtl_update_ZF(const rtlreg_t* result, int width) {
   // eflags.ZF <- is_zero(result[width * 8 - 1 .. 0])
-  TODO();
+  // TODO();
+  int res = 0;
+  switch(width) {
+    case 1:
+      res = *result & 0x000000ff;
+      break;
+    case 2:
+      res = *result & 0x0000ffff;
+      break;
+    case 4:
+      res = *result & 0xffffffff;
+      break;
+  }
+  cpu.eflags.ZF = (res == 0 ? 1 : 0);
 }
 
 static inline void rtl_update_SF(const rtlreg_t* result, int width) {
