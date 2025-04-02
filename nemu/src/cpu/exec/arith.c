@@ -7,12 +7,6 @@ make_EHelper(add) {
 }
 
 make_EHelper(sub) {
-  TODO();
-
-  print_asm_template2(sub);
-}
-
-make_EHelper(cmp) {
   // TODO();
   rtl_sub(&t2, &id_dest->val, &id_src->val);
   rtl_sltu(&t3, &id_dest->val, &t2);
@@ -28,6 +22,12 @@ make_EHelper(cmp) {
   rtl_and(&t0, &t0, &t1);
   rtl_msb(&t0, &t0, id_dest->width);
   rtl_set_OF(&t0);
+
+  print_asm_template2(sub);
+}
+
+make_EHelper(cmp) {
+  TODO();
 
   print_asm_template2(cmp);
 }
