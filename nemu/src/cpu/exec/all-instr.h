@@ -33,6 +33,7 @@ make_EHelper(movzx);
 make_EHelper(lea);
 
 /* logic.c */
+make_EHelper(or);
 make_EHelper(xor);
 make_EHelper(setcc);
 
