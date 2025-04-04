@@ -21,6 +21,7 @@ make_EHelper(jmp);
 make_EHelper(jcc);
 make_EHelper(jmp_rm);
 make_EHelper(call);
+make_EHelper(call_rm);
 make_EHelper(ret);
 
 /* data-mov.c */
