@@ -14,6 +14,7 @@ make_EHelper(imul3);
 make_EHelper(div);
 make_EHelper(idiv);
 make_EHelper(cmp);
+make_EHelper(neg);
 
 /* control.c */
 make_EHelper(jmp);
@@ -38,6 +39,7 @@ make_EHelper(test);
 make_EHelper(and);
 make_EHelper(or);
 make_EHelper(xor);
+make_EHelper(not);
 make_EHelper(setcc);
 
 /* prefix.c */
