@@ -80,7 +80,23 @@ make_EHelper(dec) {
 }
 
 make_EHelper(neg) {
-  TODO();
+  // TODO();
+  rtl_mv(&t0, &id_dest->val);
+  rtl_not(&t0);
+  rtl_addi(&t1, &t0, 1);
+  
+  if(id_dest->val) {
+    rtl_addi(&t2, &tzero, 1);
+    rtl_set_CF(&t2);
+  } else { rtl_set_CF(&tzero); }
+
+  rtl_xor(&t2, &t0, &t1);
+  rtl_msb(&t2, &t2, id_dest->width);
+  rtl_set_OF(&t2);
+
+  operand_write(id_dest, &t1);
+
+  rtl_update_ZFSF(&t1, id_dest->width);
 
   print_asm_template1(neg);
 }
