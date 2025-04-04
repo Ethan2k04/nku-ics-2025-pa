@@ -6,7 +6,7 @@ make_EHelper(test) {
   t1 = 0;
   rtl_set_CF(&t1);
   rtl_set_OF(&t1);
-  rtl_set_ZFSF(&t0, id_dest->width);
+  rtl_update_ZFSF(&t0, id_dest->width);
 
   print_asm_template2(test);
 }
