@@ -151,39 +151,39 @@ void difftest_step(uint32_t eip) {
   // Set `diff` as `true` if they are not the same.
   // TODO();
   if (cpu.eax != r.eax) {
-    printf("nemu.eax %#12x is different from qemu.eax %#12x\n", cpu.eax, r.eax);
+    printf("nemu.eax %#x is different from qemu.eax %#x\n", cpu.eax, r.eax);
     diff = true;
   }
   else if (cpu.ebx != r.ebx) {
-    printf("nemu.ebx %#12x is different from qemu.ebx %#12x\n", cpu.ebx, r.ebx);
+    printf("nemu.ebx %#x is different from qemu.ebx %#x\n", cpu.ebx, r.ebx);
     diff = true;
   }
   else if (cpu.ecx != r.ecx) {
-    printf("nemu.ecx %#12x is different from qemu.ecx %#12x\n", cpu.ecx, r.ecx);
+    printf("nemu.ecx %#x is different from qemu.ecx %#x\n", cpu.ecx, r.ecx);
     diff = true;
   }
   else if (cpu.edx != r.edx) {
-    printf("nemu.edx %#12x is different from qemu.edx %#12x\n", cpu.edx, r.edx);
+    printf("nemu.edx %#x is different from qemu.edx %#x\n", cpu.edx, r.edx);
     diff = true;
   }
   else if (cpu.esp != r.esp) {
-    printf("nemu.esp %#12x is different from qemu.esp %#12x\n", cpu.esp, r.esp);
+    printf("nemu.esp %#x is different from qemu.esp %#x\n", cpu.esp, r.esp);
     diff = true;
   }
   else if (cpu.ebp != r.ebp) {
-    printf("nemu.ebp %#12x is different from qemu.ebp %#12x\n", cpu.ebp, r.ebp);
+    printf("nemu.ebp %#x is different from qemu.ebp %#x\n", cpu.ebp, r.ebp);
     diff = true;
   }
   else if (cpu.esi != r.esi) {
-    printf("nemu.esi %#12x is different from qemu.esi %#12x\n", cpu.esi, r.esi);
+    printf("nemu.esi %#x is different from qemu.esi %#x\n", cpu.esi, r.esi);
     diff = true;
   }
   else if (cpu.edi != r.edi) {
-    printf("nemu.edi %#12x is different from qemu.edi %#12x\n", cpu.edi, r.edi);
+    printf("nemu.edi %#x is different from qemu.edi %#x\n", cpu.edi, r.edi);
     diff = true;
   }
   else if (cpu.eip != r.eip) {
-    printf("nemu.eip %#12x is different from qemu.eip %#12x\n", cpu.eip, r.eip);
+    printf("nemu.eip %#x is different from qemu.eip %#x\n", cpu.eip, r.eip);
     diff = true;
   }
 
