@@ -151,40 +151,40 @@ void difftest_step(uint32_t eip) {
   // Set `diff` as `true` if they are not the same.
   // TODO();
   if (cpu.eax != r.eax) {
-    printf("nemu.eax %#x is different from qemu.eax %#x\n", cpu.eax, r.eax);
+    printf("\033[93m nemu.eax %#x is different from qemu.eax %#x.\033[0m\n", cpu.eax, r.eax);
     diff = true;
   }
   else if (cpu.ebx != r.ebx) {
-    printf("nemu.ebx %#x is different from qemu.ebx %#x\n", cpu.ebx, r.ebx);
-    diff = true;
+      printf("\033[93m nemu.ebx %#x is different from qemu.ebx %#x.\033[0m\n", cpu.ebx, r.ebx);
+      diff = true;
   }
   else if (cpu.ecx != r.ecx) {
-    printf("nemu.ecx %#x is different from qemu.ecx %#x\n", cpu.ecx, r.ecx);
-    diff = true;
+      printf("\033[93m nemu.ecx %#x is different from qemu.ecx %#x.\033[0m\n", cpu.ecx, r.ecx);
+      diff = true;
   }
   else if (cpu.edx != r.edx) {
-    printf("nemu.edx %#x is different from qemu.edx %#x\n", cpu.edx, r.edx);
-    diff = true;
+      printf("\033[93m nemu.edx %#x is different from qemu.edx %#x.\033[0m\n", cpu.edx, r.edx);
+      diff = true;
   }
   else if (cpu.esp != r.esp) {
-    printf("nemu.esp %#x is different from qemu.esp %#x\n", cpu.esp, r.esp);
-    diff = true;
+      printf("\033[93m nemu.esp %#x is different from qemu.esp %#x.\033[0m\n", cpu.esp, r.esp);
+      diff = true;
   }
   else if (cpu.ebp != r.ebp) {
-    printf("nemu.ebp %#x is different from qemu.ebp %#x\n", cpu.ebp, r.ebp);
-    diff = true;
+      printf("\033[93m nemu.ebp %#x is different from qemu.ebp %#x.\033[0m\n", cpu.ebp, r.ebp);
+      diff = true;
   }
   else if (cpu.esi != r.esi) {
-    printf("nemu.esi %#x is different from qemu.esi %#x\n", cpu.esi, r.esi);
-    diff = true;
+      printf("\033[93m nemu.esi %#x is different from qemu.esi %#x.\033[0m\n", cpu.esi, r.esi);
+      diff = true;
   }
   else if (cpu.edi != r.edi) {
-    printf("nemu.edi %#x is different from qemu.edi %#x\n", cpu.edi, r.edi);
-    diff = true;
+      printf("\033[93m nemu.edi %#x is different from qemu.edi %#x.\033[0m\n", cpu.edi, r.edi);
+      diff = true;
   }
   else if (cpu.eip != r.eip) {
-    printf("nemu.eip %#x is different from qemu.eip %#x\n", cpu.eip, r.eip);
-    diff = true;
+      printf("\033[93m nemu.eip %#x is different from qemu.eip %#x.\033[0m\n", cpu.eip, r.eip);
+      diff = true;
   }
 
   if (diff) {
