@@ -56,7 +56,10 @@ static int cmd_si(char *args) {
 
 static int cmd_info(char *args) {
   char * arg = strtok(NULL, " ");
-  if(arg == NULL) { printf("Please enter r or w."); return 0; }
+  if(arg == NULL) {
+    printf("Please enter r or w.\n");
+    return 0;
+  }
   if(strcmp(arg, "r") == 0) {
     /* TODO✔️: Print registers */
     reg_display();
