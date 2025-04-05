@@ -39,16 +39,16 @@ static int cmd_q(char *args) {
 static int cmd_help(char *args);
 
 static int cmd_si(char *args) {
-  if(args == NULL) {
+  if (args == NULL) {
     cpu_exec(1);
     return 0;
   }
   char * steps = strtok(NULL, " ");
-  if(steps == NULL) {
+  if (steps == NULL) {
     cpu_exec(1);
   } else {
     int n = 1;
-    if(sscanf(steps, "%d", &n) == 1 && n > 0) { cpu_exec(n); }
+    if (sscanf(steps, "%d", &n) == 1 && n > 0) { cpu_exec(n); }
     else { printf("Invalid number: %s.\n", steps); }
   }
   return 0;
@@ -56,15 +56,15 @@ static int cmd_si(char *args) {
 
 static int cmd_info(char *args) {
   char * arg = strtok(NULL, " ");
-  if(arg == NULL) {
+  if (arg == NULL) {
     printf("Please enter r or w.\n");
     return 0;
   }
-  if(strcmp(arg, "r") == 0) {
+  if (strcmp(arg, "r") == 0) {
     /* TODO✔️: Print registers */
     reg_display();
   }
-  else if(strcmp(arg, "w") == 0) {
+  else if (strcmp(arg, "w") == 0) {
     /* TODO✔️: List all the break points */
     watchpoint_display();
   }
@@ -73,7 +73,7 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_p(char *args) {
-  if(args == NULL) {
+  if (args == NULL) {
     /* TODO: Error handler */
     printf("No expression.\n");
     TODO();
@@ -81,7 +81,7 @@ static int cmd_p(char *args) {
   }
   bool success = true;
   uint32_t result = expr(args, &success);
-  if(success) { printf("Result: %u\n", result); }
+  if (success) { printf("Result: %u\n", result); }
   else { printf("Invalid expression: %s.\n", args); }
   return 0;
 }
@@ -89,24 +89,24 @@ static int cmd_p(char *args) {
 static int cmd_x(char *args) {
   char * n_str = strtok(NULL, " ");
   char * s_expr = strtok(NULL, " ");
-  if(n_str == NULL || s_expr == NULL) {
+  if (n_str == NULL || s_expr == NULL) {
     printf("Invalid arguments.\n");
     return 0;
   }
   int n = 0;
-  if(sscanf(n_str, "%d", &n) != 1 || n <= 0) {
+  if (sscanf(n_str, "%d", &n) != 1 || n <= 0) {
     printf("Invalid number: %s.\n", n_str);
     return 0;
   }
   bool success = true;
   uint32_t addr = expr(s_expr, &success);
-  if(!success) {
+  if (!success) {
     printf("Invalid expression: %s.\n", s_expr);
     return 0;
   }
-  for(int i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     printf("0x%08x: ", addr);
-    for(int j = 0; j < 4; j++) {
+    for (int j = 0; j < 4; j++) {
       printf("0x%02x ", vaddr_read(addr, 1));
       addr++;
     }
@@ -116,13 +116,13 @@ static int cmd_x(char *args) {
 }
 
 static int cmd_w(char *args) {
-  if(args == NULL) {
+  if (args == NULL) {
 		puts("Command format: \"w EXPR\"");
 		return 0;
 	}
 	args += strspn(args, " ");
 	int no = set_watchpoint(args);
-	if(no == -1) {
+	if (no == -1) {
 		printf("invalid expression: '%s'\n", args);
 		return 0;
 	}
@@ -139,8 +139,8 @@ static int cmd_d(char *args) {
     return 0;
   }
   int no;
-  for(; p != NULL; p = strtok(NULL, " ")) {
-		if(sscanf(p, "%d", &no) != 1) {
+  for (; p != NULL; p = strtok(NULL, " ")) {
+		if (sscanf(p, "%d", &no) != 1) {
 			printf("Bad breakpoint number: '%s'\n", p);
 			return 0;
 		}

@@ -85,7 +85,7 @@ make_EHelper(neg) {
   rtl_not(&t0);
   rtl_addi(&t1, &t0, 1);
   
-  if(id_dest->val) {
+  if (id_dest->val) {
     rtl_addi(&t2, &tzero, 1);
     rtl_set_CF(&t2);
   } else { rtl_set_CF(&tzero); }
