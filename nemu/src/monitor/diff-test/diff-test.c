@@ -150,15 +150,42 @@ void difftest_step(uint32_t eip) {
   // TODO: Check the registers state with QEMU.
   // Set `diff` as `true` if they are not the same.
   // TODO();
-  if (cpu.eax != r.eax) { diff = true; }
-  else if (cpu.ebx != r.ebx) { diff = true; }
-  else if (cpu.ecx != r.ecx) { diff = true; }
-  else if (cpu.edx != r.edx) { diff = true; }
-  else if (cpu.esp != r.esp) { diff = true; }
-  else if (cpu.ebp != r.ebp) { diff = true; }
-  else if (cpu.esi != r.esi) { diff = true; }
-  else if (cpu.edi != r.edi) { diff = true; }
-  else if (cpu.eip != r.eip) { diff = true; }
+  if (cpu.eax != r.eax) {
+    printf("nemu.eax %#12x is different from qemu.eax %#12x", cpu.eax, r.eax);
+    diff = true;
+  }
+  else if (cpu.ebx != r.ebx) {
+    printf("nemu.ebx %#12x is different from qemu.ebx %#12x", cpu.ebx, r.ebx);
+    diff = true;
+  }
+  else if (cpu.ecx != r.ecx) {
+    printf("nemu.ecx %#12x is different from qemu.ecx %#12x", cpu.ecx, r.ecx);
+    diff = true;
+  }
+  else if (cpu.edx != r.edx) {
+    printf("nemu.edx %#12x is different from qemu.edx %#12x", cpu.edx, r.edx);
+    diff = true;
+  }
+  else if (cpu.esp != r.esp) {
+    printf("nemu.esp %#12x is different from qemu.esp %#12x", cpu.esp, r.esp);
+    diff = true;
+  }
+  else if (cpu.ebp != r.ebp) {
+    printf("nemu.ebp %#12x is different from qemu.ebp %#12x", cpu.ebp, r.ebp);
+    diff = true;
+  }
+  else if (cpu.esi != r.esi) {
+    printf("nemu.esi %#12x is different from qemu.esi %#12x", cpu.esi, r.esi);
+    diff = true;
+  }
+  else if (cpu.edi != r.edi) {
+    printf("nemu.edi %#12x is different from qemu.edi %#12x", cpu.edi, r.edi);
+    diff = true;
+  }
+  else if (cpu.eip != r.eip) {
+    printf("nemu.eip %#12x is different from qemu.eip %#12x", cpu.eip, r.eip);
+    diff = true;
+  }
 
   if (diff) {
     nemu_state = NEMU_END;
