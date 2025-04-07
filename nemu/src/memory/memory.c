@@ -22,7 +22,7 @@ uint32_t paddr_read(paddr_t addr, int len) {
 
 void paddr_write(paddr_t addr, int len, uint32_t data) {
   if (is_mmio(addr) != -1) {
-    mmio_write(addr, len. data, is_mmio(addr));
+    mmio_write(addr, len, data, is_mmio(addr));
   }
   else {
     memcpy(guest_to_host(addr), &data, len);
