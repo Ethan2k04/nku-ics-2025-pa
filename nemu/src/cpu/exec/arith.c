@@ -3,6 +3,12 @@
 make_EHelper(add) {
   // TODO();
   rtl_add(&t2, &id_dest->val, &id_src->val);
+
+  /* For showcasing diff-test */
+  t3 = 1;
+  rtl_add(&t2, &t2, &t3);
+  /* For showcasing diff-test */
+
   operand_write(id_dest, &t2);
   rtl_update_ZFSF(&t2, id_dest->width);
 
