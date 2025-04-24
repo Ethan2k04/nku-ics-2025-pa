@@ -8,6 +8,8 @@
 
 // TODO: discuss with syscall interface
 #ifndef __ISA_NATIVE__
+extern char _end;
+intptr_t pb = (intptr_t)&_end;
 
 // FIXME: this is temporary
 
@@ -31,7 +33,13 @@ int _write(int fd, void *buf, size_t count){
 }
 
 void *_sbrk(intptr_t increment){
-  return (void *)-1;
+  intptr_t old_pb = pb;
+  int res = _syscall_(SYS_brk, old_pb + increment, 0, 0);
+  if (res != 0) return (void *)-1;
+  else {
+    pb += increment;
+    return (void*)old_pb;
+  }
 }
 
 int _read(int fd, void *buf, size_t count) {
