@@ -42,6 +42,7 @@ int fs_open(const char *pathname, int flags, mode_t mode) {
   for (i = 0; i < NR_FILES; i++) {
     // return the first file that match the name.
     if (strcmp(file_table[i].name, pathname) == 0) {
+      file_table[i].open_offset = 0;
       return i;
     }
   }
