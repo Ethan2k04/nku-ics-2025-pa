@@ -24,9 +24,13 @@ static Finfo file_table[] __attribute__((used)) = {
 
 extern void ramdisk_read(void *buf, off_t offset, size_t len);
 extern void ramdisk_write(const void *buf, off_t offset, size_t len);
+extern void dispinfo_read(void *buf, off_t offset, size_t len);
+extern void fb_write(const void *buf, off_t offset, size_t len);
 
 void init_fs() {
   // TODO: initialize the size of /dev/fb
+  // a pixel has (R, G, B, A) 4 channels, so we should x4
+  file_table[FD_FB].size = _screen.height * _screen.width * 4;
 }
 
 size_t fs_sizez(int fd) {
@@ -36,7 +40,7 @@ size_t fs_sizez(int fd) {
 int fs_open(const char *pathname, int flags, mode_t mode) {
   int i;
   for (i = 0; i < NR_FILES; i++) {
-    /* return the first file that match the name. */
+    // return the first file that match the name.
     if (strcmp(file_table[i].name, pathname) == 0) {
       return i;
     }
@@ -55,8 +59,11 @@ ssize_t fs_read(int fd, void *buf, size_t count) {
     case FD_STDOUT:
     case FD_STDERR:
     case FD_EVENTS:
-    case FD_DISPINFO:
       return 0;
+    case FD_DISPINFO:
+      dispinfo_read(buf, file_table[fd].open_offset, count);
+      file_table[fd].open_offset += count;
+      break;
     default:
       ramdisk_read(buf, file_table[fd].disk_offset + file_table[fd].open_offset, count);
       file_table[fd].open_offset += count;
@@ -74,8 +81,11 @@ ssize_t fs_write(int fd, const void *buf, size_t count) {
       for (int i = 0; i < count; i++) {
         _putc(((char *)buf)[i]);
       }
+      break;
     case FD_FB:
-      return 0;
+      fb_write(buf, file_table[fd].open_offset, count);
+      file_table[fd].open_offset += count;
+      break;
     default:
       if (file_table[fd].open_offset + count > fs_size) {
         count = fs_size - file_table[fd].open_offset;
