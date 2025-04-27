@@ -12,26 +12,20 @@ extern int _read_key();
 extern unsigned long _uptime();
 
 size_t events_read(void *buf, size_t len) {
-  size_t size;
   int key = _read_key();
-  char buffer[128];
   bool keydown = false;
   if (key & 0x8000) {
     key ^= 0x8000;
     keydown = true;
   }
   if (key != _KEY_NONE) {
-    sprintf(buffer, "k%s %s\n", keydown ? "d" : "u", keyname[key]);
-    size = strlen(buffer) > len ? len : strlen(buffer);
-    memcpy(buf, buffer, size);
-    return size;
+    unsigned long t = _uptime();
+    sprintf(buf, "t %d\n", t);
   }
   else {
-    sprintf(buffer, "t %d\n", _uptime());
-    size = strlen(buffer) > len ? len : strlen(buffer);
-    memcpy(buf, buffer, size);
-    return size;
+    sprintf(buf, "%s %s\n", keydown ? "kd" : "ku", keyname[key]);
   }
+  return strlen(buf);
 }
 
 static char dispinfo[128] __attribute__((used));
