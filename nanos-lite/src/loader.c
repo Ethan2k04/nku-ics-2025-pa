@@ -24,7 +24,8 @@ uintptr_t loader(_Protect *as, const char *filename) {
 
   if (fs_size > 0) {
     fs_read(fd, buf, fs_size);
-    memcpy(DEFAULT_ENTRY, buf, fs_size);
+    // memcpy(DEFAULT_ENTRY, buf, fs_size);
+    fs_close(fd);
   }
 
   return (uintptr_t)DEFAULT_ENTRY;

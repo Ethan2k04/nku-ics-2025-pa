@@ -25,7 +25,7 @@ static Finfo file_table[] __attribute__((used)) = {
 extern void ramdisk_read(void *buf, off_t offset, size_t len);
 extern void ramdisk_write(const void *buf, off_t offset, size_t len);
 extern void dispinfo_read(void *buf, off_t offset, size_t len);
-extern size_t fb_write(const void *buf, off_t offset, size_t len);
+extern void fb_write(const void *buf, off_t offset, size_t len);
 
 void init_fs() {
   // TODO: initialize the size of /dev/fb
@@ -74,59 +74,29 @@ ssize_t fs_read(int fd, void *buf, size_t count) {
   return count;
 }
 
-// ssize_t fs_write(int fd, const void *buf, size_t count) {
-//   ssize_t fs_size = fs_sizez(fd);
-//   switch (fd) {
-//     case FD_STDOUT:
-//     case FD_STDERR:
-//       for (int i = 0; i < count; i++) {
-//         _putc(((char *)buf)[i]);
-//       }
-//       break;
-//     case FD_FB:
-//       fb_write(buf, file_table[fd].open_offset, count);
-//       file_table[fd].open_offset += count;
-//       break;
-//     default:
-//       if (file_table[fd].open_offset + count > fs_size) {
-//         count = fs_size - file_table[fd].open_offset;
-//       }
-//       ramdisk_write(buf, file_table[fd].disk_offset + file_table[fd].open_offset, count);
-//       file_table[fd].open_offset += count;
-//       break;
-//   }
-
-//   return count;
-// }
-
-ssize_t fs_write(int fd, const void *buf, size_t len) {
-  ssize_t byteswritten;
+ssize_t fs_write(int fd, const void *buf, size_t count) {
+  ssize_t fs_size = fs_sizez(fd);
   switch (fd) {
     case FD_STDOUT:
     case FD_STDERR:
-      byteswritten = 0;
-      while(len--) {
-        _putc(((char*)buf)[byteswritten]);
-        byteswritten++;
+      for (int i = 0; i < count; i++) {
+        _putc(((char *)buf)[i]);
       }
-      return byteswritten;
+      break;
     case FD_FB:
-      byteswritten = fb_write(buf, file_table[fd].open_offset, len);
-      file_table[fd].open_offset += byteswritten;
-      return byteswritten;
-    case FD_DISPINFO:
-      // read only
-      return 0;
+      fb_write(buf, file_table[fd].open_offset, count);
+      file_table[fd].open_offset += count;
+      break;
     default:
-      byteswritten = ((file_table[fd].open_offset + len <= fs_sizez(fd)) ? len : fs_sizez(fd) - file_table[fd].open_offset);
-      if (byteswritten >= 0) {
-        ramdisk_write(buf, file_table[fd].open_offset + file_table[fd].disk_offset, byteswritten);
-        file_table[fd].open_offset += byteswritten;
-        return byteswritten;
+      if (file_table[fd].open_offset + count > fs_size) {
+        count = fs_size - file_table[fd].open_offset;
       }
-      return 0;
+      ramdisk_write(buf, file_table[fd].disk_offset + file_table[fd].open_offset, count);
+      file_table[fd].open_offset += count;
+      break;
   }
-  return 0;
+
+  return count;
 }
 
 off_t fs_lseek(int fd, off_t offset, int whence) {
