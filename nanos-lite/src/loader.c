@@ -18,12 +18,12 @@ uintptr_t loader(_Protect *as, const char *filename) {
   // return (uintptr_t)DEFAULT_ENTRY;
   int fd = fs_open(filename, 0, 0);
   int fs_size = fs_sizez(fd);
-  void *buf = NULL;
+  // void *buf = NULL;
 
   Log("Loading file %s [fd: %d] with size %d bytes", filename, fd, fs_size);
 
   if (fs_size > 0) {
-    fs_read(fd, buf, fs_size);
+    fs_read(fd, DEFAULT_ENTRY, fs_size);
     // memcpy(DEFAULT_ENTRY, buf, fs_size);
     fs_close(fd);
   }
