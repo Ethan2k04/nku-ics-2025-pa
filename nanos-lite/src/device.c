@@ -18,7 +18,7 @@ size_t events_read(void *buf, size_t len) {
     key ^= 0x8000;
     keydown = true;
   }
-  if (key != _KEY_NONE) {
+  if (key == _KEY_NONE) {
     unsigned long t = _uptime();
     sprintf(buf, "t %d\n", t);
   }
