@@ -19,10 +19,19 @@ void dispinfo_read(void *buf, off_t offset, size_t len) {
 }
 
 size_t fb_write(const void *buf, off_t offset, size_t len) {
-  int row = (offset / 4) / _screen.width;
-  int col = (offset / 4) % _screen.width;
-  _draw_rect((uint32_t*)buf, col, row, len / 4, 1);
-  return len;
+  // int row = (offset / 4) / _screen.width;
+  // int col = (offset / 4) % _screen.width;
+  // _draw_rect((uint32_t*)buf, col, row, len / 4, 1);
+  // return len;
+  int written = len;
+  if (offset + len > _screen.width * _screen.height * 4) {
+    written = _screen.width * _screen.height * 4 - offset;
+  }
+  if (written > 0) 
+    memcpy((char *)(0x40000) + offset, buf, (ssize_t)written);
+  else
+    written = 0;
+  return written;
 }
 
 void init_device() {
