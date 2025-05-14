@@ -67,15 +67,15 @@ void _switch(_Protect *p) {
 
 void _map(_Protect *p, void *va, void *pa) {
   PDE *pgdir = (PDE *)p->ptr;
-  PDE *pde   = &pgdir[PDX(va)]; 
+  PDE *pde   = pde = pgdir + PDX(va); 
   PTE *pgtab = NULL;
-  if (*pde & PTE_P) {
-    pgtab = (PTE *)PTE_ADDR(*pde);
-  } else {
-    pgtab = (PTE *)palloc_f();
-    *pde  = PTE_ADDR(pgtab) | PTE_P; 
-  }
-  pgtab[PTX(va)] = PTE_ADDR(pa) | PTE_P;
+  if (!(*pde & PTE_P)) {
+    pgtab = (PTE *)(palloc_f());
+    *pde = (uintptr_t)pgtab | PTE_P;
+  } 
+  pgtab = (PTE *)PTE_ADDR(*pde);
+  PTE *pte = pgtab + PTX(va);
+  *pte = (uintptr_t)pa | PTE_P;
 }
 
 void _unmap(_Protect *p, void *va) {
