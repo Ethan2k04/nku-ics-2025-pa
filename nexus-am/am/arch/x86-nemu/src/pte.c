@@ -82,21 +82,23 @@ void _unmap(_Protect *p, void *va) {
 }
 
 _RegSet *_umake(_Protect *p, _Area ustack, _Area kstack, void *entry, char *const argv[], char *const envp[]) {
-  // uint32_t *ptr = ustack.end;
-  // for (int i = 0; i < 8; i ++) {
-  //   *ptr = 0x0;
-  //   ptr--;
-  // }
-  // *ptr = 0x202;           ptr --;
-  // *ptr = 0x8;             ptr --;
-  // *ptr = (uint32_t)entry; ptr--;
-  // *ptr = 0x0;             ptr--;
-  // *ptr = 0x81;            ptr--;
-  // for (int i = 0; i < 8; i++) {
-  //   *ptr = 0x0;
-  //   ptr--;
-  // }
-  // ptr++;
-  // return (_RegSet *)ptr;
-  return NULL;
+  // _umake initialize the bottom of ustack as an entry
+  uint32_t *ptr = ustack.end;
+  // initialize the 8 gpr of _start
+  for (int i = 0; i < 8; i ++) {
+    *ptr = 0x0;
+    ptr --;
+  }
+  // trapframe, which includes 8 gpr
+  *ptr = 0x202;           ptr --;   // eflags
+  *ptr = 0x8;             ptr --;   // cs
+  *ptr = (uint32_t)entry; ptr --;   // eip
+  *ptr = 0x0;             ptr --;   // error code
+  *ptr = 0x81;            ptr --;   // irq id
+  for (int i = 0; i < 8; i++) {
+    *ptr = 0x0;
+    ptr --;
+  }
+  ptr ++;
+  return (_RegSet *)ptr;
 }
