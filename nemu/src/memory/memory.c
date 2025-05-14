@@ -43,10 +43,10 @@ paddr_t page_translate(vaddr_t vaddr, bool is_write) {
 
   if (cpu.cr0.val & 0x80000000) {
     uint32_t PageTable = paddr_read(cpu.cr3.val + 4 * DIR, 4) & 0xFFFFF000;
-    if(!(paddr_read(cpu.cr3.val + 4 * DIR, 4) & 0x00000001)) {
-      Log("FATAL: Virtual Address is 0x%08X", vaddr);
-      Log("FATAL: eip = 0x%08X at PD", cpu.eip);
-    }
+    // if(!(paddr_read(cpu.cr3.val + 4 * DIR, 4) & 0x00000001)) {
+    //   Log("FATAL: Virtual Address is 0x%08X", vaddr);
+    //   Log("FATAL: eip = 0x%08X at PD", cpu.eip);
+    // }
     //assert(paddr_read(cpu.cr3.val + 4 * DIR, 4) & 0x00000001); // Present
     paddr_write(cpu.cr3.val + 4 * DIR, 4, (paddr_read(cpu.cr3.val + 4 * DIR, 4) | 0x00000020)); // Set accessed
     // uint32_t PageTableEntry = paddr_read(PageTable + 4 * PAGE, 4);
