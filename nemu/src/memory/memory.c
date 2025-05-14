@@ -65,6 +65,7 @@ uint32_t vaddr_read(vaddr_t addr, int len) {
     }
     return data;
   } else {
+    printf("SHIT IT IS SHIT!\n");
     paddr_t paddr = page_translate(addr, false);
     return paddr_read(paddr, len);
   }
