@@ -36,7 +36,5 @@ void init_mm() {
   pf = (void *)PGROUNDUP((uintptr_t)_heap.start);
   Log("free physical pages starting from %p", pf);
 
-  printf("FUCKKKKKKKK");
   _pte_init(new_page, free_page);
-  printf("SHITTTTTTTTTTT");
 }
