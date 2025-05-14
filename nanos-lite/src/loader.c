@@ -30,13 +30,13 @@ uintptr_t loader(_Protect *as, const char *filename) {
   /* PA3 legacy */
 
   void *pa, *va = DEFAULT_ENTRY;
-  // while (fs_size > 0) {
-  //   pa = new_page();
-  //   _map(as, va, pa);
-  //   fs_read(fd, pa, PGSIZE);
-  //   va += PGSIZE;
-  //   fs_size -= PGSIZE;
-  // }
+  while (fs_size > 0) {
+    pa = new_page();
+    _map(as, va, pa);
+    fs_read(fd, pa, PGSIZE);
+    va += PGSIZE;
+    fs_size -= PGSIZE;
+  }
   fs_close(fd);
   return (uintptr_t)DEFAULT_ENTRY;
 }

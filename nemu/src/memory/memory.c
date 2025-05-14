@@ -49,11 +49,11 @@ paddr_t page_translate(vaddr_t vaddr, bool is_write) {
     }
     //assert(paddr_read(cpu.cr3.val + 4 * DIR, 4) & 0x00000001); // Present
     paddr_write(cpu.cr3.val + 4 * DIR, 4, (paddr_read(cpu.cr3.val + 4 * DIR, 4) | 0x00000020)); // Set accessed
-    uint32_t PageTableEntry = paddr_read(PageTable + 4 * PAGE, 4);
-    if(!(PageTableEntry & 0x00000001)) {
-      Log("FATAL: Virtual Address is 0x%08X", vaddr);
-      Log("FATAL: eip = 0x%08X at PT", cpu.eip);
-    }
+    // uint32_t PageTableEntry = paddr_read(PageTable + 4 * PAGE, 4);
+    // if(!(PageTableEntry & 0x00000001)) {
+    //   Log("FATAL: Virtual Address is 0x%08X", vaddr);
+    //   Log("FATAL: eip = 0x%08X at PT", cpu.eip);
+    // }
     //assert(PageTableEntry & 0x00000001); // Present
     paddr_write(PageTable + 4 * PAGE, 4, (paddr_read(PageTable + 4 * PAGE, 4) | 0x00000020)); // Set accessed
     if (is_write) 
