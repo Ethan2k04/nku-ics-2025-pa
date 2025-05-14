@@ -42,8 +42,8 @@ void _pte_init(void* (*palloc)(), void (*pfree)(void*)) {
     }
   }
 
-  set_cr3(kpdirs);
-  set_cr0(get_cr0() | CR0_PG);
+  //set_cr3(kpdirs);
+  //set_cr0(get_cr0() | CR0_PG);
 }
 
 void _protect(_Protect *p) {
@@ -66,18 +66,16 @@ void _switch(_Protect *p) {
 }
 
 void _map(_Protect *p, void *va, void *pa) {
-  int iterator;
-  uint32_t *PageDirectory = p->ptr;
-  uint32_t DIR = (uint32_t)va >> 22;
-  uint32_t PAGE = (uint32_t)va >> 12 & 0x000003FF;
-  
-  if ((PageDirectory[DIR] & 1) == 0) {
-    PageDirectory[DIR] = (uint32_t)(palloc_f()) | PTE_P;
-    for (iterator = 0; iterator < NR_PTE; iterator++)
-        ((uint32_t *)(PageDirectory[DIR]))[iterator] = 0;
+  PDE *pgdir = (PDE *)p->ptr;
+  PDE *pde   = &pgdir[PDX(va)]; 
+  PTE *pgtab = NULL;
+  if (*pde & PTE_P) {
+    pgtab = (PTE *)PTE_ADDR(pde);
+  } else {
+    pgtab = (PTE *)palloc_f();
+    *pde  = PTE_ADDR(pgtab) | PTE_P; 
   }
-  uint32_t PageTable = PageDirectory[DIR];
-  ((uint32_t *)(PageTable & 0xFFFFF000))[PAGE] = (uint32_t)pa | PTE_P;
+  pgtab[PTX(va)] = PTE_ADDR(pa) | PTE_P;
 }
 
 void _unmap(_Protect *p, void *va) {
