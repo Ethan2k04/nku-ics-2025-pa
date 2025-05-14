@@ -36,6 +36,8 @@ make_EHelper(cltd);
 make_EHelper(movsx);
 make_EHelper(movzx);
 make_EHelper(lea);
+make_EHelper(mov_cr2r);
+make_EHelper(mov_r2cr);
 
 /* logic.c */
 make_EHelper(test);
