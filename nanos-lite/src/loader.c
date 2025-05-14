@@ -31,6 +31,7 @@ uintptr_t loader(_Protect *as, const char *filename) {
 
   void *pa, *va = DEFAULT_ENTRY;
   while (fs_size > 0) {
+    printf("FUCK YOU, BEFORE!");
     pa = new_page();
     printf("FUCK YOU, I AM OKAY!");
     _map(as, va, pa);
