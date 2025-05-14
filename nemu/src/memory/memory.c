@@ -60,7 +60,7 @@ uint32_t vaddr_read(vaddr_t addr, int len) {
     uint32_t data = 0x0;
     printf("FUCK I AM OKAY!\n");
     for (int i = 0; i < len; i++) {
-      paddr_t paddr = page_translate(addr, false);
+      paddr_t paddr = page_translate(addr + i, false);
       data += (paddr_read(paddr, 1)) << 8 * i;
     }
     return data;
