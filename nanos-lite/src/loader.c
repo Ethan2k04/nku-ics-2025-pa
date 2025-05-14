@@ -29,14 +29,14 @@ uintptr_t loader(_Protect *as, const char *filename) {
   // }
   /* PA3 legacy */
 
-  void *pa, *va = DEFAULT_ENTRY;
-  while (fs_size > 0) {
-    pa = new_page();
-    _map(as, va, pa);
-    fs_read(fd, pa, PGSIZE);
-    va += PGSIZE;
-    fs_size -= PGSIZE;
+  uint32_t i = 0;
+  void *pageptr;
+  for(i = 0; i < fs_sizez(fd); i += 0x1000) {
+    pageptr = new_page();
+    _map(as, (void *)(0x8048000 + i), pageptr);
+    fs_read(fd, pageptr, ((fs_sizez(fd) - i >= 0x1000) ? 0x1000 : fs_sizez(fd) - i));
   }
   fs_close(fd);
+  new_page();
   return (uintptr_t)DEFAULT_ENTRY;
 }
