@@ -44,9 +44,7 @@ paddr_t page_translate(vaddr_t addr, bool iswrite) {
     pde.accessed = 1;
     
     pgtab = (PTE *)(PTE_ADDR(pde.val));
-    printf("FUCKKKKKKKK");
     pte.val = paddr_read((paddr_t)&pgtab[addr], 4);
-    printf("SHITTTTTTTTT");
     // assert(pte.present);
     pte.accessed = 1;
     pte.dirty = iswrite ? 1 : pte.dirty;
@@ -59,12 +57,13 @@ paddr_t page_translate(vaddr_t addr, bool iswrite) {
 uint32_t vaddr_read(vaddr_t addr, int len) {
   if ((addr & PAGE_MASK) != ((addr + len - 1) & PAGE_MASK)) {
     // Concatenate the data if it cross the page boundary
-    uint32_t data = 0x0;
-    for (int i = 0; i < len; i++) {
-      paddr_t paddr = page_translate(addr + i, false);
-      data += (paddr_read(paddr, 1)) << 8 * i;
-    }
-    return data;
+    // uint32_t data = 0x0;
+    // for (int i = 0; i < len; i++) {
+    //   paddr_t paddr = page_translate(addr + i, false);
+    //   data += (paddr_read(paddr, 1)) << 8 * i;
+    // }
+    // return data;
+    assert(0);
   } else {
     paddr_t paddr = page_translate(addr, false);
     return paddr_read(paddr, len);
@@ -73,10 +72,11 @@ uint32_t vaddr_read(vaddr_t addr, int len) {
 
 void vaddr_write(vaddr_t addr, int len, uint32_t data) {
   if ((addr & PAGE_MASK) != ((addr + len - 1) & PAGE_MASK)) {
-    for (int i = 0; i < len; i++) {
-      paddr_t paddr = page_translate(addr + i, true);
-      paddr_write(paddr, 1, data >> 8 * i);
-    } 
+    // for (int i = 0; i < len; i++) {
+    //   paddr_t paddr = page_translate(addr + i, true);
+    //   paddr_write(paddr, 1, data >> 8 * i);
+    // } 
+    assert(0);
   } else {
     paddr_t paddr = page_translate(addr, true);
     paddr_write(paddr, len, data);
