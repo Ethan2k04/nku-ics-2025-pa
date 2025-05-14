@@ -13,10 +13,10 @@ uint32_t loader(_Protect *, const char *);
 extern void load_prog(const char *filename);
 
 int main() {
-  printf("FUCKKKKKKKK");
 #ifdef HAS_PTE
   init_mm();
 #endif
+  printf("FUCKKKKKKKK");
 
   Log("'Hello World!' from Nanos-lite");
   Log("Build time: %s, %s", __TIME__, __DATE__);
