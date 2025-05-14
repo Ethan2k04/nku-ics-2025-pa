@@ -34,35 +34,25 @@ void paddr_write(paddr_t addr, int len, uint32_t data) {
 #define PTX(va)       (((uint32_t)(va) >> 12) & 0x3ff)
 #define OFF(va)       ((uint32_t)(va) & 0xfff)
 
-paddr_t page_translate(vaddr_t vaddr, bool is_write) {
-  uint32_t DIR = vaddr >> 22;
-  uint32_t PAGE = vaddr >> 12 & 0x000003FF;
-  uint32_t OFFSET = vaddr & 0x00000FFF;
-  paddr_t PhysicalAddr = vaddr;
+paddr_t page_translate(vaddr_t addr, bool iswrite) {
+  PDE pde, *pgdir;
+  PTE pte, *pgtab;
+  if (cpu.cr0.protect_enable && cpu.cr0.paging) {
+    pgdir = (PDE *)(PTE_ADDR(cpu.cr3.val));
+    printf("FUCKKKKKKKK");
+    pde.val = paddr_read((paddr_t)&pgdir[PDX(addr)], 4);
+    // assert(pde.present);
+    pde.accessed = 1;
+    
+    pgtab = (PTE *)(PTE_ADDR(pde.val));
+    pte.val = paddr_read((paddr_t)&pgtab[addr], 4);
+    // assert(pte.present);
+    pte.accessed = 1;
+    pte.dirty = iswrite ? 1 : pte.dirty;
 
-
-  if (cpu.cr0.val & 0x80000000) {
-    uint32_t PageTable = paddr_read(cpu.cr3.val + 4 * DIR, 4) & 0xFFFFF000;
-    // if(!(paddr_read(cpu.cr3.val + 4 * DIR, 4) & 0x00000001)) {
-    //   Log("FATAL: Virtual Address is 0x%08X", vaddr);
-    //   Log("FATAL: eip = 0x%08X at PD", cpu.eip);
-    // }
-    //assert(paddr_read(cpu.cr3.val + 4 * DIR, 4) & 0x00000001); // Present
-    paddr_write(cpu.cr3.val + 4 * DIR, 4, (paddr_read(cpu.cr3.val + 4 * DIR, 4) | 0x00000020)); // Set accessed
-    // uint32_t PageTableEntry = paddr_read(PageTable + 4 * PAGE, 4);
-    // if(!(PageTableEntry & 0x00000001)) {
-    //   Log("FATAL: Virtual Address is 0x%08X", vaddr);
-    //   Log("FATAL: eip = 0x%08X at PT", cpu.eip);
-    // }
-    //assert(PageTableEntry & 0x00000001); // Present
-    paddr_write(PageTable + 4 * PAGE, 4, (paddr_read(PageTable + 4 * PAGE, 4) | 0x00000020)); // Set accessed
-    if (is_write) 
-      paddr_write(PageTable + 4 * PAGE, 4, (paddr_read(PageTable + 4 * PAGE, 4) | 0x00000040)); // Set dirty
-    PhysicalAddr = (paddr_read(PageTable + 4 * PAGE, 4) & 0xFFFFF000) + OFFSET;
-
-    //Log("PhysicalAddr = 0x%08X", PhysicalAddr);
+    return PTE_ADDR(pte.val) | OFF(addr);
   }
-  return PhysicalAddr;
+  return addr;
 }
 
 uint32_t vaddr_read(vaddr_t addr, int len) {
