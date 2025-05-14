@@ -16,7 +16,6 @@ int main() {
 #ifdef HAS_PTE
   init_mm();
 #endif
-  printf("FUCKKKKKKKK");
 
   Log("'Hello World!' from Nanos-lite");
   Log("Build time: %s, %s", __TIME__, __DATE__);
