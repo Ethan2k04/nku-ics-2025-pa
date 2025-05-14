@@ -34,55 +34,56 @@ void paddr_write(paddr_t addr, int len, uint32_t data) {
 #define PTX(va)       (((uint32_t)(va) >> 12) & 0x3ff)
 #define OFF(va)       ((uint32_t)(va) & 0xfff)
 
-// ��������е�ַ��ת��
-paddr_t page_translate(vaddr_t addr,bool worr){
-  CR0 cr0=(CR0)cpu.cr0;  // ������mmu.h��
-  if (cr0.paging&&cr0.protect_enable){ // ��ҳ����&����ģʽ
-    CR3 cr3=(CR3)cpu.cr3;
-    // ����PDE
-    PDE* pgdir=(PDE*)PTE_ADDR(cr3.val);
-    PDE pde=(PDE)paddr_read((uint32_t)(pgdir+PDX(addr)),4);
-    Assert(pde.present,"addr=0x%x",addr);
-    pde.accessed=1;
+paddr_t page_translate(vaddr_t addr, bool iswrite) {
+  if (!cpu.cr0.paging) {
+    return addr;
+  }
+  PDE pde, *pgdir;
+  PTE pte, *pgtab;
+  if (cpu.cr0.protect_enable && cpu.cr0.paging) {
+    pgdir = (PDE *)(cpu.cr3.val);
+    pde.val = paddr_read((paddr_t)&pgdir[PDX(addr)], 4);
+    assert(pde.present);
+    pde.accessed = 1;
     
-    // ����PTE
-    PTE* ptab=(PTE*)PTE_ADDR(pde.val);
-    PTE pte=(PTE)paddr_read((uint32_t)(ptab+PTX(addr)),4);
-    Assert(pte.present,"addr=0x%x",addr);
-    pte.accessed=1;
-    pte.dirty=worr?1:pte.dirty; // �����д������λ��1
-    //����ƫ����ת��Ϊ������ַ
-    return PTE_ADDR(pte.val)| OFF(addr);
+    pgtab = (PTE *)(PTE_ADDR(pde.val));
+    pte.val = paddr_read((paddr_t)&pgtab[PTX(addr)], 4);
+    assert(pte.present);
+    pte.accessed = 1;
+    pte.dirty = iswrite ? 1 : pte.dirty;
+
+    return PTE_ADDR(pte.val) | OFF(addr);
   }
   return addr;
 }
 
 uint32_t vaddr_read(vaddr_t addr, int len) {
-  if(PTE_ADDR(addr)!=PTE_ADDR(addr+len-1)){ // ��ȡ�����ݿ�ҳ��һ��һ����
- 	  uint32_t data = 0;
-	  for(int i=0;i<len;i++){
-		  paddr_t paddr = page_translate(addr + i, false);
-		  data += (paddr_read(paddr, 1))<<8*i;
-	  }
-	return data;
-  }
-  else{
-    paddr_t paddr=page_translate(addr,false);
-    return paddr_read(paddr,len);
+  uint32_t OFFSET = addr & 0x00000FFF;
+  if (OFFSET + len > 0x00001000) {
+    // Concatenate the data if it cross the page boundary
+    // uint32_t data = 0x0;
+    // for (int i = 0; i < len; i++) {
+    //   paddr_t paddr = page_translate(addr + i, false);
+    //   data += (paddr_read(paddr, 1)) << 8 * i;
+    // }
+    // return data;
+    assert(0);
+  } else {
+    paddr_t paddr = page_translate(addr, false);
+    return paddr_read(paddr, len);
   }
 }
 
 void vaddr_write(vaddr_t addr, int len, uint32_t data) {
-  if(PTE_ADDR(addr)!=PTE_ADDR(addr+len-1)){ // д�����ݿ�ҳ��һ��һ��д
-    for(int i=0;i<len;i++){ 
-    	paddr_t paddr = page_translate(addr + i,true);
-    	paddr_write(paddr,1,data>>8*i);
-    }
-    return;
-  }
-  else{
-    paddr_t paddr=page_translate(addr,true);
+  uint32_t OFFSET = addr & 0x00000FFF;
+  if (OFFSET + len > 0x00001000) {
+    // for (int i = 0; i < len; i++) {
+    //   paddr_t paddr = page_translate(addr + i, true);
+    //   paddr_write(paddr, 1, data >> 8 * i);
+    // } 
+    assert(0);
+  } else {
+    paddr_t paddr = page_translate(addr, true);
     paddr_write(paddr, len, data);
-    return;
   }
 }
