@@ -39,13 +39,13 @@ paddr_t page_translate(vaddr_t addr, bool iswrite) {
   PTE pte, *pgtab;
   if (cpu.cr0.protect_enable && cpu.cr0.paging) {
     pgdir = (PDE *)(cpu.cr3.val);
-    pde.val = paddr_read((uintptr_t)&pgdir[PDX(addr)], 4);
+    pde.val = paddr_read((paddr_t)&pgdir[PDX(addr)], 4);
     assert(pde.present);
     pde.accessed = 1;
     
     pgtab = (PTE *)(PTE_ADDR(pde.val));
-    pte.val = paddr_read((uintptr_t)&pgtab[PTX(addr)], 4);
-    // assert(pte.present);
+    pte.val = paddr_read((paddr_t)&pgtab[PTX(addr)], 4);
+    assert(pte.present);
     pte.accessed = 1;
     pte.dirty = iswrite ? 1 : pte.dirty;
 
