@@ -33,6 +33,7 @@ int main() {
 
   // uint32_t entry = loader(NULL, "/bin/pal");
   // ((void (*)(void))entry)();
+  printf("FUCK YOU, I AM OKAY!");
   load_prog("/bin/dummy");
 
   panic("Should not reach here");

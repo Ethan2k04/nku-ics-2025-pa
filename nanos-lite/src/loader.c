@@ -17,7 +17,6 @@ uintptr_t loader(_Protect *as, const char *filename) {
   // ramdisk_read(buf, 0, size);
   // memcpy(DEFAULT_ENTRY, buf, size);
   // return (uintptr_t)DEFAULT_ENTRY;
-  printf("FUCK YOU, I AM OKAY!");
   int fd = fs_open(filename, 0, 0);
   int fs_size = fs_sizez(fd);
 
