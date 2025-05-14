@@ -55,10 +55,10 @@ paddr_t page_translate(vaddr_t addr, bool iswrite) {
 }
 
 uint32_t vaddr_read(vaddr_t addr, int len) {
-  printf("FUCK I AM OKAY!");
   if ((addr & PAGE_MASK) != ((addr + len - 1) & PAGE_MASK)) {
     // Concatenate the data if it cross the page boundary
     uint32_t data = 0x0;
+    printf("FUCK I AM OKAY!\n");
     for (int i = 0; i < len; i++) {
       paddr_t paddr = page_translate(addr, false);
       data += (paddr_read(paddr, 1)) << 8 * i;
