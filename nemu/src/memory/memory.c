@@ -35,13 +35,10 @@ void paddr_write(paddr_t addr, int len, uint32_t data) {
 #define OFF(va)       ((uint32_t)(va) & 0xfff)
 
 paddr_t page_translate(vaddr_t addr, bool iswrite) {
-  if (!cpu.cr0.paging) {
-    return addr;
-  }
   PDE pde, *pgdir;
   PTE pte, *pgtab;
   if (cpu.cr0.protect_enable && cpu.cr0.paging) {
-    pgdir = (PDE *)(cpu.cr3.val);
+    pgdir = (PDE *)(PTE_ADDR(cpu.cr3.val));
     pde.val = paddr_read((paddr_t)&pgdir[PDX(addr)], 4);
     assert(pde.present);
     pde.accessed = 1;
