@@ -68,9 +68,9 @@ void _switch(_Protect *p) {
 void _map(_Protect *p, void *va, void *pa) {
   PDE *pgdir = (PDE *)p->ptr;
   PDE *pde   = &pgdir[PDX(va)]; 
-  PTE *pgtab = NULL;
+  PTE *pgtab;
   if (*pde & PTE_P) {
-    pgtab = (PTE *)PTE_ADDR(pde);
+    pgtab = (PTE *)(PTE_ADDR(pde) | PTE_P);
   } else {
     pgtab = (PTE *)palloc_f();
     *pde  = PTE_ADDR(pgtab) | PTE_P; 
