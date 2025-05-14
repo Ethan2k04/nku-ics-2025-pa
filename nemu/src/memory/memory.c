@@ -40,7 +40,7 @@ paddr_t page_translate(vaddr_t addr, bool iswrite) {
   if (cpu.cr0.protect_enable && cpu.cr0.paging) {
     pgdir = (PDE *)(cpu.cr3.val);
     pde.val = paddr_read((paddr_t)&pgdir[PDX(addr)], 4);
-    // assert(pde.present);
+    assert(pde.present);
     pde.accessed = 1;
     
     pgtab = (PTE *)(PTE_ADDR(pde.val));
