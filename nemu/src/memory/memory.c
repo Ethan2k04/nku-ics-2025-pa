@@ -58,14 +58,12 @@ uint32_t vaddr_read(vaddr_t addr, int len) {
   if ((addr & PAGE_MASK) != ((addr + len - 1) & PAGE_MASK)) {
     // Concatenate the data if it cross the page boundary
     uint32_t data = 0x0;
-    printf("FUCK I AM OKAY!\n");
     for (int i = 0; i < len; i++) {
       paddr_t paddr = page_translate(addr + i, false);
       data += (paddr_read(paddr, 1)) << 8 * i;
     }
     return data;
   } else {
-    printf("SHIT IT IS SHIT!\n");
     paddr_t paddr = page_translate(addr, false);
     return paddr_read(paddr, len);
   }
