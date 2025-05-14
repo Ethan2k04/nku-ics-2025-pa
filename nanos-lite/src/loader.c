@@ -32,6 +32,7 @@ uintptr_t loader(_Protect *as, const char *filename) {
   void *pa, *va = DEFAULT_ENTRY;
   while (fs_size > 0) {
     pa = new_page();
+    printf("FUCK YOU, I AM OKAY!");
     _map(as, va, pa);
     fs_read(fd, pa, PGSIZE);
     va += PGSIZE;
