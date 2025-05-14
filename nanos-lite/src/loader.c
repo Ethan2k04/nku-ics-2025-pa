@@ -17,6 +17,7 @@ uintptr_t loader(_Protect *as, const char *filename) {
   // ramdisk_read(buf, 0, size);
   // memcpy(DEFAULT_ENTRY, buf, size);
   // return (uintptr_t)DEFAULT_ENTRY;
+  printf("FUCK YOU, I AM OKAY!");
   int fd = fs_open(filename, 0, 0);
   int fs_size = fs_sizez(fd);
 
@@ -31,9 +32,7 @@ uintptr_t loader(_Protect *as, const char *filename) {
 
   void *pa, *va = DEFAULT_ENTRY;
   while (fs_size > 0) {
-    printf("FUCK YOU, BEFORE!");
     pa = new_page();
-    printf("FUCK YOU, I AM OKAY!");
     _map(as, va, pa);
     fs_read(fd, pa, PGSIZE);
     va += PGSIZE;
