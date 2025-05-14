@@ -13,7 +13,6 @@ uint32_t loader(_Protect *, const char *);
 extern void load_prog(const char *filename);
 
 int main() {
-  printf("FUCK YOU, I AM OKAY!");
 #ifdef HAS_PTE
   init_mm();
 #endif
@@ -32,9 +31,9 @@ int main() {
 
   init_fs();
 
-  // uint32_t entry = loader(NULL, "/bin/pal");
-  // ((void (*)(void))entry)();
-  load_prog("/bin/dummy");
+  uint32_t entry = loader(NULL, "/bin/pal");
+  ((void (*)(void))entry)();
+  // load_prog("/bin/dummy");
 
   panic("Should not reach here");
 }
