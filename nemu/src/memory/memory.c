@@ -44,7 +44,7 @@ paddr_t page_translate(vaddr_t addr, bool iswrite) {
     pde.accessed = 1;
     
     pgtab = (PTE *)(PTE_ADDR(pde.val));
-    pte.val = paddr_read((paddr_t)&pgtab[addr], 4);
+    pte.val = paddr_read((paddr_t)&pgtab[PTX(addr)], 4);
     // assert(pte.present);
     pte.accessed = 1;
     pte.dirty = iswrite ? 1 : pte.dirty;
