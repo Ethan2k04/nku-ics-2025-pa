@@ -1,6 +1,6 @@
 #include "common.h"
 
-#define DEFAULT_ENTRY ((void *)0x4000000)
+#define DEFAULT_ENTRY ((void *)0x8048000)
 
 extern void ramdisk_read(void *buf, off_t offset, size_t len);
 extern size_t get_ramdisk_size();
@@ -8,6 +8,7 @@ extern int fs_open(const char *pathname, int flags, mode_t mode);
 extern ssize_t fs_read(int fd, void *buf, size_t count);
 extern int fs_close(int fd);
 extern size_t fs_sizez(int fd);
+extern void* new_page(void);
 
 uintptr_t loader(_Protect *as, const char *filename) {
   // TODO();
@@ -21,10 +22,21 @@ uintptr_t loader(_Protect *as, const char *filename) {
 
   Log("Loading file %s [fd: %d] with size %d bytes", filename, fd, fs_size);
 
-  if (fs_size > 0) {
-    fs_read(fd, DEFAULT_ENTRY, fs_size);
-    fs_close(fd);
-  }
+  /* PA3 legacy */
+  // if (fs_size > 0) {
+  //   fs_read(fd, DEFAULT_ENTRY, fs_size);
+  //   fs_close(fd);
+  // }
+  /* PA3 legacy */
 
+  void *pa, *va = DEFAULT_ENTRY;
+  while (fs_size > 0) {
+    pa = new_page();
+    _map(as, va, pa);
+    fs_read(fd, pa, PGSIZE);
+    va += PGSIZE;
+    fs_size -= PGSIZE;
+  }
+  fs_close(fd);
   return (uintptr_t)DEFAULT_ENTRY;
 }

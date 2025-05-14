@@ -32,7 +32,7 @@ void paddr_write(paddr_t addr, int len, uint32_t data) {
 #define PTE_ADDR(pte) ((uint32_t)(pte) & ~0xfff)
 #define PDX(va)       (((uint32_t)(va) >> 22) & 0x3ff)
 #define PTX(va)       (((uint32_t)(va) >> 12) & 0x3ff)
-#define REM(va)       ((uint32_t)(va) & 0xfff)
+#define OFF(va)       ((uint32_t)(va) & 0xfff)
 
 paddr_t page_translate(vaddr_t addr, bool iswrite) {
   PDE pde, *pgdir;
@@ -49,7 +49,7 @@ paddr_t page_translate(vaddr_t addr, bool iswrite) {
     pte.accessed = 1;
     pte.dirty = iswrite ? 1 : pte.dirty;
 
-    return PTE_ADDR(pte.val) | REM(addr);
+    return PTE_ADDR(pte.val) | OFF(addr);
   }
   return addr;
 }
