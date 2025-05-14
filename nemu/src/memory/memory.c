@@ -41,6 +41,7 @@ paddr_t page_translate(vaddr_t addr, bool iswrite) {
     pgdir = (PDE *)(PTE_ADDR(cpu.cr3.val));
     printf("FUCKKKKKKKK");
     pde.val = paddr_read((paddr_t)&pgdir[PDX(addr)], 4);
+    printf("SHITTTTTTTTT");
     // assert(pde.present);
     pde.accessed = 1;
     
