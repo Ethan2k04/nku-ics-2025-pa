@@ -70,7 +70,7 @@ void _map(_Protect *p, void *va, void *pa) {
   PDE *pde   = &pgdir[PDX(va)]; 
   PTE *pgtab;
   if (*pde & PTE_P) {
-    pgtab = (PTE *)(PTE_ADDR(pde) | PTE_P);
+    pgtab = (PTE *)PTE_ADDR(*pde);
   } else {
     pgtab = (PTE *)palloc_f();
     *pde  = PTE_ADDR(pgtab) | PTE_P; 
