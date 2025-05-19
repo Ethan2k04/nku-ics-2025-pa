@@ -7,8 +7,10 @@ void raise_intr(uint8_t NO, vaddr_t ret_addr) {
    */
 
   // TODO();
+  // Save eflags value on stack
   rtl_push(&cpu.eflags.val);
 
+  // Disable interruption by setting IF bit to 0
   cpu.eflags.IF = 0;
 
   rtl_push(&cpu.cs);
@@ -22,4 +24,5 @@ void raise_intr(uint8_t NO, vaddr_t ret_addr) {
 }
 
 void dev_raise_intr() {
+  cpu.INTR = true;
 }
