@@ -34,7 +34,7 @@ _RegSet* schedule(_RegSet *prev) {
   current = &pcb[0];
   count ++;
   if (count == 100) {
-    // current = &pcb[1];
+    current = &pcb[1];
     count = 0;
   }
   _switch(&current->as);
