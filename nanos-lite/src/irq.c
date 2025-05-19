@@ -10,7 +10,7 @@ static _RegSet* do_event(_Event e, _RegSet* r) {
     // case _EVENT_TRAP: { printf("Nanos-lite received _EVENT_TRAP but _umake() unimplemented.\n"); return NULL; }
     case _EVENT_TRAP: return schedule(r);
     case _EVENT_ERROR: { printf("Nanos-lite received _EVENT_ERROR\n"); return NULL; } 
-    case _EVENT_IRQ_TIME: { printf("TIMER INTERRUPT!"); return schedule(r); }
+    case _EVENT_IRQ_TIME: { printf("TIMER INTERRUPT!\n"); return schedule(r); }
     default: panic("Unhandled event ID = %d", e.event);
   }
 
