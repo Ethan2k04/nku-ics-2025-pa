@@ -28,15 +28,15 @@ void load_prog(const char *filename) {
 
 int count = 0;
 _RegSet* schedule(_RegSet *prev) {
-  // current->tf = prev;
-  // // current = &pcb[0];
-  // // current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  current->tf = prev;
   // current = &pcb[0];
-  // count ++;
-  // if (count == 100) {
-  //   current = &pcb[1];
-  //   count = 0;
-  // }
-  // _switch(&current->as);
+  // current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  current = &pcb[0];
+  count ++;
+  if (count == 100) {
+    // current = &pcb[1];
+    count = 0;
+  }
+  _switch(&current->as);
   return current->tf;
 }
