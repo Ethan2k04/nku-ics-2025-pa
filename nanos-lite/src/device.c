@@ -10,6 +10,7 @@ static const char *keyname[256] __attribute__((used)) = {
 
 extern int _read_key();
 extern unsigned long _uptime();
+extern void change_game();
 
 size_t events_read(void *buf, size_t len) {
   int key = _read_key();
@@ -24,6 +25,10 @@ size_t events_read(void *buf, size_t len) {
   }
   else {
     sprintf(buf, "%s %s\n", keydown ? "kd" : "ku", keyname[key]);
+    // if f12 is clicked, switch current prog
+    if (key == _KEY_F12 && keydown) {
+      change_game();
+    }
   }
   return strlen(buf);
 }
