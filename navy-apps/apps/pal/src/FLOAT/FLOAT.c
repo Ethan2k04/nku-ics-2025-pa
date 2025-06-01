@@ -20,6 +20,7 @@ FLOAT F_mul_F(FLOAT a, FLOAT b) {
 FLOAT F_div_F(FLOAT a, FLOAT b) {
   // assert(0);
   // return 0;
+  printf("\nassert at F_div_F\n");
   assert(b != 0);
   FLOAT x = Fabs(a);
   FLOAT y = Fabs(b);
@@ -57,7 +58,7 @@ FLOAT f2F(float a) {
   f.val = *((uint32_t*)(void*)&a);
   int exp = f.exp - 127;
   FLOAT ret = 0;
-  if (exp ==128) { assert(0); }
+  if (exp == 128) { printf("\nassert at f2F\n"); assert(0); }
   if (exp >= 0) {
     int mov = 7 - exp;
     if (mov >= 0) { ret = (f.mantissa | (1 << 23)) >> mov; }
