@@ -54,7 +54,7 @@ FLOAT f2F(float a) {
 
   // assert(0);
   // return 0;
-  float_f f;
+  union float_f f;
   f.val = *((uint32_t*)(void*)&a);
   int exp = f.exp - 127;
   FLOAT ret = 0;
