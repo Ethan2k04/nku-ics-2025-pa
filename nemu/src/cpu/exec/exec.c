@@ -291,7 +291,9 @@ void (*jit_compile(uint32_t eip))() {
   // 这里只是一个伪代码示例，实际需要将指令翻译为对应的本地代码
   // 例如，如果是一个简单的 `mov` 指令，我们可以将其转化为直接的寄存器操作
   decoding.seq_eip = eip;
+  printf("FUCK BEFORE EXEC_REAL\n");
   exec_real(&decoding.seq_eip);
+  printf("FUCK AFTER EXEC_REAL\n");
   // 假设是一个mov指令，直接返回一个简单的本地代码
   return (void (*)())eip;  // 实际编译过程要复杂得多，这里只是示范
 }
