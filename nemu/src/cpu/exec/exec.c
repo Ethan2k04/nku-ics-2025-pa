@@ -309,7 +309,9 @@ void exec_wrapper(bool print_flag) {
   decoding.seq_eip = cpu.eip;
 
   // 检查 JIT 缓存是否已经有编译好的代码
+  printf("FUCK BEFORE");
   int cache_index = find_jit_cache(cpu.eip);
+  printf("FUCK AFTER");
 
   if (cache_index != -1) {
     // 如果缓存中有已编译的代码，则直接执行
