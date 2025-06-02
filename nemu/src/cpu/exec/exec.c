@@ -222,80 +222,6 @@ make_EHelper(real) {
   idex(eip, &opcode_table[opcode]);
 }
 
-// static inline void update_eip(void) {
-//   cpu.eip = (decoding.is_jmp ? (decoding.is_jmp = 0, decoding.jmp_eip) : decoding.seq_eip);
-// }
-
-// void exec_wrapper(bool print_flag) {
-// #ifdef DEBUG
-//   decoding.p = decoding.asm_buf;
-//   decoding.p += sprintf(decoding.p, "%8x:   ", cpu.eip);
-// #endif
-
-//   decoding.seq_eip = cpu.eip;
-//   exec_real(&decoding.seq_eip);
-
-// #ifdef DEBUG
-//   int instr_len = decoding.seq_eip - cpu.eip;
-//   sprintf(decoding.p, "%*.s", 50 - (12 + 3 * instr_len), "");
-//   strncat(decoding.asm_buf, decoding.assembly, 80);
-//   Log_write("%s\n", decoding.asm_buf);
-//   if (print_flag) {
-//     puts(decoding.asm_buf);
-//   }
-// #endif
-
-// #ifdef DIFF_TEST
-//   uint32_t eip = cpu.eip;
-// #endif
-
-//   update_eip();
-
-// #ifdef DIFF_TEST
-//   void difftest_step(uint32_t);
-//   difftest_step(eip);
-// #endif
-
-// #define TIMER_IRQ 0x32
-//   if (cpu.INTR & cpu.eflags.IF) {
-//     cpu.INTR = false;
-//     raise_intr(TIMER_IRQ, cpu.eip);
-//     update_eip();
-//   }
-// }
-
-// JIT 编译相关的缓存
-#define JIT_CACHE_SIZE 1024
-
-typedef struct {
-  uint32_t address;            // 指令的起始地址
-  void (*native_code)();       // 对应的本地代码
-} JITCacheEntry;
-
-static JITCacheEntry jit_cache[JIT_CACHE_SIZE];
-static int jit_cache_index = 0;
-
-// 用来检查是否已编译该指令
-int find_jit_cache(uint32_t eip) {
-  for (int i = 0; i < jit_cache_index; i++) {
-    if (jit_cache[i].address == eip) {
-      return i;  // 找到了缓存中的编译代码
-    }
-  }
-  return -1;  // 没有找到
-}
-
-// JIT 编译函数 - 将机器码编译为本地代码
-void (*jit_compile(uint32_t eip))() {
-  // 在这里进行简单的机器码到本地代码的映射
-  // 这里只是一个伪代码示例，实际需要将指令翻译为对应的本地代码
-  // 例如，如果是一个简单的 `mov` 指令，我们可以将其转化为直接的寄存器操作
-  decoding.seq_eip = eip;
-  exec_real(&decoding.seq_eip);
-  // 假设是一个mov指令，直接返回一个简单的本地代码
-  return (void (*)())eip;  // 实际编译过程要复杂得多，这里只是示范
-}
-
 static inline void update_eip(void) {
   cpu.eip = (decoding.is_jmp ? (decoding.is_jmp = 0, decoding.jmp_eip) : decoding.seq_eip);
 }
@@ -307,31 +233,7 @@ void exec_wrapper(bool print_flag) {
 #endif
 
   decoding.seq_eip = cpu.eip;
-
-  // 检查 JIT 缓存是否已经有编译好的代码
-  printf("FUCK BEFORE");
-  int cache_index = find_jit_cache(cpu.eip);
-  printf("FUCK AFTER");
-
-  if (cache_index != -1) {
-    // 如果缓存中有已编译的代码，则直接执行
-    jit_cache[cache_index].native_code();
-  } else {
-    // 如果缓存中没有，进行即时编译
-    void (*native_code)() = jit_compile(cpu.eip);
-
-    // 将编译后的代码加入缓存
-    if (jit_cache_index < JIT_CACHE_SIZE) {
-      jit_cache[jit_cache_index].address = cpu.eip;
-      jit_cache[jit_cache_index].native_code = native_code;
-      jit_cache_index++;
-    }
-
-    // 执行即时编译的代码
-    native_code();
-
-    update_eip();
-  }
+  exec_real(&decoding.seq_eip);
 
 #ifdef DEBUG
   int instr_len = decoding.seq_eip - cpu.eip;
@@ -361,3 +263,101 @@ void exec_wrapper(bool print_flag) {
     update_eip();
   }
 }
+
+// // JIT 编译相关的缓存
+// #define JIT_CACHE_SIZE 1024
+
+// typedef struct {
+//   uint32_t address;            // 指令的起始地址
+//   void (*native_code)();       // 对应的本地代码
+// } JITCacheEntry;
+
+// static JITCacheEntry jit_cache[JIT_CACHE_SIZE];
+// static int jit_cache_index = 0;
+
+// // 用来检查是否已编译该指令
+// int find_jit_cache(uint32_t eip) {
+//   for (int i = 0; i < jit_cache_index; i++) {
+//     if (jit_cache[i].address == eip) {
+//       return i;  // 找到了缓存中的编译代码
+//     }
+//   }
+//   return -1;  // 没有找到
+// }
+
+// // JIT 编译函数 - 将机器码编译为本地代码
+// void (*jit_compile(uint32_t eip))() {
+//   // 在这里进行简单的机器码到本地代码的映射
+//   // 这里只是一个伪代码示例，实际需要将指令翻译为对应的本地代码
+//   // 例如，如果是一个简单的 `mov` 指令，我们可以将其转化为直接的寄存器操作
+//   decoding.seq_eip = eip;
+//   exec_real(&decoding.seq_eip);
+//   // 假设是一个mov指令，直接返回一个简单的本地代码
+//   return (void (*)())eip;  // 实际编译过程要复杂得多，这里只是示范
+// }
+
+// static inline void update_eip(void) {
+//   cpu.eip = (decoding.is_jmp ? (decoding.is_jmp = 0, decoding.jmp_eip) : decoding.seq_eip);
+// }
+
+// void exec_wrapper(bool print_flag) {
+// #ifdef DEBUG
+//   decoding.p = decoding.asm_buf;
+//   decoding.p += sprintf(decoding.p, "%8x:   ", cpu.eip);
+// #endif
+
+//   decoding.seq_eip = cpu.eip;
+
+//   // 检查 JIT 缓存是否已经有编译好的代码
+//   printf("FUCK BEFORE");
+//   int cache_index = find_jit_cache(cpu.eip);
+//   printf("FUCK AFTER");
+
+//   if (cache_index != -1) {
+//     // 如果缓存中有已编译的代码，则直接执行
+//     jit_cache[cache_index].native_code();
+//   } else {
+//     // 如果缓存中没有，进行即时编译
+//     void (*native_code)() = jit_compile(cpu.eip);
+
+//     // 将编译后的代码加入缓存
+//     if (jit_cache_index < JIT_CACHE_SIZE) {
+//       jit_cache[jit_cache_index].address = cpu.eip;
+//       jit_cache[jit_cache_index].native_code = native_code;
+//       jit_cache_index++;
+//     }
+
+//     // 执行即时编译的代码
+//     native_code();
+
+//     update_eip();
+//   }
+
+// #ifdef DEBUG
+//   int instr_len = decoding.seq_eip - cpu.eip;
+//   sprintf(decoding.p, "%*.s", 50 - (12 + 3 * instr_len), "");
+//   strncat(decoding.asm_buf, decoding.assembly, 80);
+//   Log_write("%s\n", decoding.asm_buf);
+//   if (print_flag) {
+//     puts(decoding.asm_buf);
+//   }
+// #endif
+
+// #ifdef DIFF_TEST
+//   uint32_t eip = cpu.eip;
+// #endif
+
+//   update_eip();
+
+// #ifdef DIFF_TEST
+//   void difftest_step(uint32_t);
+//   difftest_step(eip);
+// #endif
+
+// #define TIMER_IRQ 0x32
+//   if (cpu.INTR & cpu.eflags.IF) {
+//     cpu.INTR = false;
+//     raise_intr(TIMER_IRQ, cpu.eip);
+//     update_eip();
+//   }
+// }
