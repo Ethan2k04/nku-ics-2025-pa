@@ -309,16 +309,18 @@ void exec_wrapper(bool print_flag) {
   decoding.seq_eip = cpu.eip;
 
   // 检查 JIT 缓存是否已经有编译好的代码
-  printf("FUCK BEFORE\n");
   int cache_index = find_jit_cache(cpu.eip);
-  printf("FUCK AFTER\n");
 
   if (cache_index != -1) {
     // 如果缓存中有已编译的代码，则直接执行
+    printf("FUCK BEFORE HAS\n");
     jit_cache[cache_index].native_code();
+    printf("FUCK AFTER HAS\n");
   } else {
     // 如果缓存中没有，进行即时编译
+    printf("FUCK BEFORE NO\n");
     void (*native_code)() = jit_compile(cpu.eip);
+    printf("FUCK AFTER NO\n");
 
     // 将编译后的代码加入缓存
     if (jit_cache_index < JIT_CACHE_SIZE) {
