@@ -290,7 +290,8 @@ void (*jit_compile(uint32_t eip))() {
   // 在这里进行简单的机器码到本地代码的映射
   // 这里只是一个伪代码示例，实际需要将指令翻译为对应的本地代码
   // 例如，如果是一个简单的 `mov` 指令，我们可以将其转化为直接的寄存器操作
-
+  decoding.seq_eip = eip;
+  exec_real(&decoding.seq_eip);
   // 假设是一个mov指令，直接返回一个简单的本地代码
   return (void (*)())eip;  // 实际编译过程要复杂得多，这里只是示范
 }
@@ -326,6 +327,8 @@ void exec_wrapper(bool print_flag) {
 
     // 执行即时编译的代码
     native_code();
+
+    update_eip();
   }
 
 #ifdef DEBUG
