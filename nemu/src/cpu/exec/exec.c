@@ -330,7 +330,9 @@ void exec_wrapper(bool print_flag) {
     }
 
     // 执行即时编译的代码
+    printf("FUCK BEFORE NATIVE\n");
     native_code();
+    printf("FUCK BEFORE NATIVE\n");
 
     update_eip();
   }
