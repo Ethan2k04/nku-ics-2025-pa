@@ -265,7 +265,7 @@ make_EHelper(real) {
 // }
 
 // JIT 编译相关的缓存
-#define JIT_CACHE_SIZE 10
+#define JIT_CACHE_SIZE 32
 
 typedef struct {
   uint32_t address;            // 指令的起始地址
