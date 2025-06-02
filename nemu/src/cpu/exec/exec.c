@@ -265,7 +265,7 @@ make_EHelper(real) {
 // }
 
 // JIT 编译相关的缓存
-#define JIT_CACHE_SIZE 1024
+#define JIT_CACHE_SIZE 10
 
 typedef struct {
   uint32_t address;            // 指令的起始地址
@@ -309,9 +309,9 @@ void exec_wrapper(bool print_flag) {
   decoding.seq_eip = cpu.eip;
 
   // 检查 JIT 缓存是否已经有编译好的代码
-  printf("FUCK BEFORE");
+  printf("FUCK BEFORE\n");
   int cache_index = find_jit_cache(cpu.eip);
-  printf("FUCK AFTER");
+  printf("FUCK AFTER\n");
 
   if (cache_index != -1) {
     // 如果缓存中有已编译的代码，则直接执行
